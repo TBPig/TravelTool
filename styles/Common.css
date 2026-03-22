@@ -25,16 +25,54 @@
   background: #f0f7ff;
 }
 
+.planner-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.planner-header h2 {
+  font-size: 32px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.planner-desc {
+  font-size: 16px;
+  color: #666;
+}
+
 .planner-form {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
   background: #fff;
   padding: 40px;
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* 表单分区 */
+.form-section {
+  margin-bottom: 35px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 20px;
+}
+
+.form-section-title {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
 }
 
 .form-group {
@@ -64,8 +102,141 @@
   border-color: #1890ff;
 }
 
+/* 单选卡片组 */
+.radio-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 15px;
+}
+
+.radio-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 15px;
+  background: #f8f9fa;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.radio-card:hover {
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.radio-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.radio-card input[type="radio"]:checked + .radio-icon,
+.radio-card input[type="radio"]:checked ~ .radio-label,
+.radio-card input[type="radio"]:checked ~ .radio-desc {
+  color: #1890ff;
+}
+
+.radio-card:has(input[type="radio"]:checked) {
+  border-color: #1890ff;
+  background: #e6f7ff;
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2);
+}
+
+.radio-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.radio-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.radio-desc {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.4;
+}
+
+/* 标签选择器 */
+.tag-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tag-checkbox {
+  position: relative;
+  cursor: pointer;
+}
+
+.tag-checkbox input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.tag-label {
+  display: inline-block;
+  padding: 10px 18px;
+  background: #f5f5f5;
+  border: 2px solid #e8e8e8;
+  border-radius: 25px;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.3s;
+  user-select: none;
+}
+
+.tag-checkbox:hover .tag-label {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.tag-checkbox input[type="checkbox"]:checked + .tag-label {
+  background: #1890ff;
+  border-color: #1890ff;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+}
+
+/* 表单按钮组 */
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px dashed #e8e8e8;
+}
+
+.btn-save-profile {
+  padding: 16px 40px;
+  background: #fff;
+  color: #1890ff;
+  border: 2px solid #1890ff;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-save-profile:hover {
+  background: #e6f7ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2);
+}
+
 .btn-generate {
-  grid-column: 1 / -1;
   padding: 16px 40px;
   background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
   color: #fff;
@@ -185,6 +356,101 @@
   background: #40a9ff;
 }
 
+/* 画像摘要 */
+.profile-summary {
+  background: linear-gradient(135deg, #e6f7ff 0%, #f0f7ff 100%);
+  border: 1px solid #91d5ff;
+  border-radius: 12px;
+  padding: 15px 20px;
+  margin-bottom: 25px;
+}
+
+.summary-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.summary-title {
+  font-weight: 600;
+  color: #1890ff;
+  margin-right: 5px;
+}
+
+.summary-item {
+  background: #fff;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #666;
+  border: 1px solid #e8e8e8;
+}
+
+.btn-clear-profile {
+  margin-left: auto;
+  padding: 5px 15px;
+  background: transparent;
+  border: 1px solid #ff4d4f;
+  color: #ff4d4f;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-clear-profile:hover {
+  background: #ff4d4f;
+  color: #fff;
+}
+
+/* 通知提示 */
+.notification-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 90%;
+  text-align: center;
+}
+
+.notification-toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.notification-success {
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  color: #52c41a;
+}
+
+.notification-info {
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+  color: #1890ff;
+}
+
+.notification-warning {
+  background: #fffbe6;
+  border: 1px solid #ffe58f;
+  color: #faad14;
+}
+
+.notification-error {
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  color: #ff4d4f;
+}
+
 /* 特色服务 */
 .features {
   background: #f8f9fa;
@@ -236,12 +502,54 @@
   }
 
   .planner-form {
-    grid-template-columns: 1fr;
     padding: 24px;
   }
 
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .radio-group {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .radio-card {
+    padding: 15px 10px;
+  }
+
+  .radio-icon {
+    font-size: 24px;
+  }
+
+  .radio-label {
+    font-size: 14px;
+  }
+
+  .radio-desc {
+    font-size: 11px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-save-profile,
   .btn-generate {
-    grid-column: 1;
+    width: 100%;
+  }
+
+  .profile-summary {
+    padding: 12px 15px;
+  }
+
+  .summary-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-clear-profile {
+    margin-left: 0;
+    margin-top: 10px;
   }
 
   .section-title {
