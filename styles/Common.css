@@ -75,6 +75,43 @@
   gap: 20px;
 }
 
+/* 统一表单网格布局：两行三列 */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 24px 20px;
+}
+
+.form-grid .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-grid .form-group label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.form-grid .form-group input,
+.form-grid .form-group select {
+  padding: 14px 16px;
+  border: 2px solid #e8e8e8;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.3s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-grid .form-group input:focus,
+.form-grid .form-group select:focus {
+  border-color: #1890ff;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -206,6 +243,100 @@
   border-color: #1890ff;
   color: #fff;
   box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+}
+
+/* 自定义多选下拉框 */
+.multi-select {
+  position: relative;
+  width: 100%;
+}
+
+.multi-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border: 2px solid #e8e8e8;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.3s;
+  min-height: 20px;
+}
+
+.multi-select-trigger:hover {
+  border-color: #1890ff;
+}
+
+.multi-select-trigger.active {
+  border-color: #1890ff;
+}
+
+.multi-select-placeholder {
+  color: #999;
+  font-size: 15px;
+}
+
+.multi-select-placeholder.has-selection {
+  color: #333;
+}
+
+.multi-select-arrow {
+  color: #999;
+  font-size: 12px;
+  transition: transform 0.3s;
+}
+
+.multi-select-trigger.active .multi-select-arrow {
+  transform: rotate(180deg);
+}
+
+.multi-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 2px solid #e8e8e8;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.multi-select-dropdown.show {
+  max-height: 300px;
+  overflow-y: auto;
+  opacity: 1;
+  padding: 8px 0;
+}
+
+.multi-select-option {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.multi-select-option:hover {
+  background: #e6f7ff;
+}
+
+.multi-select-option input[type="checkbox"] {
+  margin-right: 10px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.multi-select-option span {
+  font-size: 14px;
+  color: #333;
 }
 
 /* 表单按钮组 */
@@ -507,6 +638,12 @@
 
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 16px;
   }
 
   .radio-group {

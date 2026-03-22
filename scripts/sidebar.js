@@ -133,9 +133,6 @@ function renderSidebar() {
                             if (isActive) linkClass += ' active';
                             if (!isAccessible) linkClass += ' disabled';
 
-                            const indicator = isCompleted ? '✓' : (step.step);
-                            const indicatorClass = isCompleted ? 'completed' : (isActive ? 'current' : '');
-
                             return `
                                 <li class="nav-item">
                                     <a href="${isAccessible ? step.path : 'javascript:void(0)'}"
@@ -144,9 +141,6 @@ function renderSidebar() {
                                        ${!isAccessible ? 'title="请先完成上一步"' : ''}>
                                         <span class="nav-icon">${step.icon}</span>
                                         <span class="nav-text">${step.name}</span>
-                                        <span class="flow-indicator">
-                                            <span class="flow-step ${indicatorClass}">${indicator}</span>
-                                        </span>
                                     </a>
                                 </li>
                             `;
@@ -192,15 +186,6 @@ function updateSidebarUI() {
         link.className = 'nav-link';
         if (isActive) link.classList.add('active');
         if (!isAccessible) link.classList.add('disabled');
-
-        // 更新指示器
-        const indicator = link.querySelector('.flow-step');
-        if (indicator) {
-            indicator.textContent = isCompleted ? '✓' : FLOW_CONFIG.steps.find(s => s.id === stepId).step;
-            indicator.className = 'flow-step';
-            if (isCompleted) indicator.classList.add('completed');
-            else if (isActive) indicator.classList.add('current');
-        }
 
         // 更新链接href
         if (isAccessible) {

@@ -25,28 +25,13 @@ function saveUserProfile() {
     const days = document.getElementById('days').value;
 
     // 获取游玩强度
-    const intensityRadios = document.getElementsByName('intensity');
-    let intensity = 'relaxed';
-    for (const radio of intensityRadios) {
-        if (radio.checked) {
-            intensity = radio.value;
-            break;
-        }
-    }
+    const intensity = document.getElementById('intensity').value;
 
-    // 获取兴趣标签
-    const interestCheckboxes = document.querySelectorAll('#interest-tags input[type="checkbox"]:checked');
-    const interests = Array.from(interestCheckboxes).map(cb => cb.value);
+    // 获取兴趣标签（多选）
+    const interests = getInterestsValues();
 
     // 获取同行人类型
-    const companionRadios = document.getElementsByName('companion');
-    let companion = 'solo';
-    for (const radio of companionRadios) {
-        if (radio.checked) {
-            companion = radio.value;
-            break;
-        }
-    }
+    const companion = document.getElementById('companion').value;
 
     // 构建用户画像对象
     const profile = {
@@ -102,26 +87,17 @@ function fillFormWithProfile(profile) {
 
     // 填充游玩强度
     if (profile.intensity) {
-        const intensityRadios = document.getElementsByName('intensity');
-        for (const radio of intensityRadios) {
-            radio.checked = (radio.value === profile.intensity);
-        }
+        document.getElementById('intensity').value = profile.intensity;
     }
 
-    // 填充兴趣标签
+    // 填充兴趣标签（多选）
     if (profile.interests && profile.interests.length > 0) {
-        const interestCheckboxes = document.querySelectorAll('#interest-tags input[type="checkbox"]');
-        interestCheckboxes.forEach(cb => {
-            cb.checked = profile.interests.includes(cb.value);
-        });
+        setInterestsValues(profile.interests);
     }
 
     // 填充同行人类型
     if (profile.companion) {
-        const companionRadios = document.getElementsByName('companion');
-        for (const radio of companionRadios) {
-            radio.checked = (radio.value === profile.companion);
-        }
+        document.getElementById('companion').value = profile.companion;
     }
 }
 
@@ -184,17 +160,14 @@ function clearUserProfile() {
     document.getElementById('destination').value = '';
     document.getElementById('days').value = '';
 
-    // 重置游玩强度为默认值
-    const intensityRadios = document.getElementsByName('intensity');
-    intensityRadios[0].checked = true;
+    // 重置游玩强度
+    document.getElementById('intensity').value = '';
 
     // 重置兴趣标签
-    const interestCheckboxes = document.querySelectorAll('#interest-tags input[type="checkbox"]');
-    interestCheckboxes.forEach(cb => cb.checked = false);
+    clearInterestsSelection();
 
-    // 重置同行人类型为默认值
-    const companionRadios = document.getElementsByName('companion');
-    companionRadios[0].checked = true;
+    // 重置同行人类型
+    document.getElementById('companion').value = '';
 
     // 移除摘要显示
     const summary = document.getElementById('profile-summary');
@@ -300,28 +273,13 @@ async function generateRoute() {
     const days = document.getElementById('days').value;
 
     // 获取游玩强度
-    const intensityRadios = document.getElementsByName('intensity');
-    let intensity = 'relaxed';
-    for (const radio of intensityRadios) {
-        if (radio.checked) {
-            intensity = radio.value;
-            break;
-        }
-    }
+    const intensity = document.getElementById('intensity').value;
 
-    // 获取兴趣标签
-    const interestCheckboxes = document.querySelectorAll('#interest-tags input[type="checkbox"]:checked');
-    const interests = Array.from(interestCheckboxes).map(cb => cb.value);
+    // 获取兴趣标签（多选）
+    const interests = getInterestsValues();
 
     // 获取同行人类型
-    const companionRadios = document.getElementsByName('companion');
-    let companion = 'solo';
-    for (const radio of companionRadios) {
-        if (radio.checked) {
-            companion = radio.value;
-            break;
-        }
-    }
+    const companion = document.getElementById('companion').value;
 
     // 验证必填项
     if (!departure || !destination || !days) {
@@ -383,4 +341,92 @@ document.addEventListener('DOMContentLoaded', function() {
         fillFormWithProfile(profile);
         updateProfileSummary(profile);
     }
+
+    // 点击外部关闭下拉框
+    document.addEventListener('click', function(e) {
+        const container = document.getElementById('interests-container');
+        if (container && !container.contains(e.target)) {
+            closeInterestsDropdown();
+        }
+    });
 });
+
+// ========== 兴趣标签多选组件控制函数 ==========
+
+// 切换下拉框显示/隐藏
+function toggleInterestsDropdown() {
+    const dropdown = document.getElementById('interests-dropdown');
+    const trigger = document.querySelector('.multi-select-trigger');
+
+    if (dropdown.classList.contains('show')) {
+        closeInterestsDropdown();
+    } else {
+        dropdown.classList.add('show');
+        trigger.classList.add('active');
+    }
+}
+
+// 关闭下拉框
+function closeInterestsDropdown() {
+    const dropdown = document.getElementById('interests-dropdown');
+    const trigger = document.querySelector('.multi-select-trigger');
+
+    if (dropdown) dropdown.classList.remove('show');
+    if (trigger) trigger.classList.remove('active');
+}
+
+// 获取选中的兴趣标签值
+function getInterestsValues() {
+    const checkboxes = document.querySelectorAll('#interests-dropdown input[type="checkbox"]:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+// 设置兴趣标签选中值
+function setInterestsValues(values) {
+    const checkboxes = document.querySelectorAll('#interests-dropdown input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+        cb.checked = values.includes(cb.value);
+    });
+    updateInterestsDisplay();
+}
+
+// 清除兴趣标签选择
+function clearInterestsSelection() {
+    const checkboxes = document.querySelectorAll('#interests-dropdown input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = false);
+    updateInterestsDisplay();
+}
+
+// 更新兴趣标签显示文本
+function updateInterestsDisplay() {
+    const values = getInterestsValues();
+    const display = document.getElementById('interests-display');
+    const hiddenInput = document.getElementById('interests');
+
+    const valueTextMap = {
+        'photo': '📸 拍照打卡',
+        'food': '🍜 美食探索',
+        'culture': '🏛️ 人文历史',
+        'nature': '🏔️ 自然风光',
+        'shopping': '🛍️ 购物血拼',
+        'adventure': '🧗 户外探险',
+        'relax': '🏖️ 休闲度假',
+        'nightlife': '🌃 夜生活'
+    };
+
+    if (values.length === 0) {
+        display.textContent = '请选择兴趣标签';
+        display.classList.remove('has-selection');
+        hiddenInput.value = '';
+    } else {
+        const selectedTexts = values.map(v => valueTextMap[v] || v);
+        display.textContent = selectedTexts.join('、');
+        display.classList.add('has-selection');
+        hiddenInput.value = values.join(',');
+    }
+}
+
+// 更新兴趣标签选择（供 onchange 调用）
+function updateInterestsSelection() {
+    updateInterestsDisplay();
+}
