@@ -26,8 +26,18 @@ CREATE TABLE IF NOT EXISTS attractions (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     city VARCHAR(100),
-    type VARCHAR(100), -- 景点类型
+    type VARCHAR(100), -- 景点类型: nature, culture, food, relax, adventure, shopping, scenic, entertainment, nightlife
+    address VARCHAR(255),
+    rating DECIMAL(2,1) DEFAULT 4.0,
+    price DECIMAL(10,2) DEFAULT 0,
+    recommended_duration INTEGER DEFAULT 120, -- 建议游览时长(分钟)
     image_url VARCHAR(500),
+    tags TEXT, -- 标签，逗号分隔
+    open_time VARCHAR(100),
+    best_visit_time VARCHAR(100),
+    suitable_for_family BOOLEAN DEFAULT true,
+    suitable_for_elderly BOOLEAN DEFAULT true,
+    suitable_for_couple BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -61,17 +71,20 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 插入示例景点数据
-INSERT INTO attractions (name, description, city, type) VALUES
-('滇池', '云南最大的淡水湖，冬季可观红嘴鸥', '昆明', '自然风光'),
-('大理古城', '历史悠久的古城，白族文化聚集地', '大理', '人文历史'),
-('洱海', '高原湖泊，风景如画', '大理', '自然风光'),
-('丽江古城', '世界文化遗产，纳西族文化', '丽江', '人文历史'),
-('玉龙雪山', '纳西族神山，冰川公园', '丽江', '自然风光'),
-('四姑娘山', '蜀山皇后，登山胜地', '阿坝', '自然风光'),
-('稻城亚丁', '蓝色星球上的最后一片净土', '稻城', '自然风光'),
-('乌镇', '江南水乡古镇代表', '嘉兴', '人文历史'),
-('西湖', '杭州名片，人间天堂', '杭州', '自然风光'),
-('青海湖', '中国最大的内陆咸水湖', '青海湖', '自然风光'),
-('茶卡盐湖', '天空之镜，摄影圣地', '茶卡', '自然风光'),
-('莫高窟', '世界文化遗产，佛教艺术宝库', '敦煌', '人文历史');
+-- 插入示例景点数据（带完整字段）
+INSERT INTO attractions (name, description, city, type, address, rating, price, recommended_duration, image_url, tags, open_time, best_visit_time, suitable_for_family, suitable_for_elderly, suitable_for_couple) VALUES
+('滇池', '云南最大的淡水湖，冬季可观红嘴鸥', '昆明', 'nature', '昆明市西山区滇池路', 4.5, 0, 120, 'https://picsum.photos/400/250?random=10', 'nature,scenic,lake', '全天开放', '冬季', true, true, true),
+('大理古城', '历史悠久的古城，白族文化聚集地', '大理', 'culture', '大理市古城区', 4.6, 0, 180, 'https://picsum.photos/400/250?random=11', 'culture,history,ancient', '全天开放', '傍晚', true, true, true),
+('洱海', '高原湖泊，风景如画', '大理', 'nature', '大理市洱海周边', 4.8, 0, 240, 'https://picsum.photos/400/250?random=12', 'nature,scenic,lake,photo', '全天开放', '日出日落', true, true, true),
+('丽江古城', '世界文化遗产，纳西族文化', '丽江', 'culture', '丽江市古城区', 4.5, 50, 180, 'https://picsum.photos/400/250?random=13', 'culture,history,ancient,nightlife', '全天开放', '夜晚', true, true, true),
+('玉龙雪山', '纳西族神山，冰川公园', '丽江', 'nature', '丽江市玉龙纳西族自治县', 4.7, 130, 300, 'https://picsum.photos/400/250?random=14', 'nature,mountain,adventure,scenic', '08:00-17:00', '上午', true, false, true),
+('束河古镇', '宁静古朴的纳西族古镇', '丽江', 'culture', '丽江市古城区束河路', 4.4, 0, 120, 'https://picsum.photos/400/250?random=15', 'culture,relax,ancient', '全天开放', '下午', true, true, true),
+('拉市海', '湿地公园，骑马划船', '丽江', 'nature', '丽江市玉龙纳西族自治县', 4.2, 80, 180, 'https://picsum.photos/400/250?random=16', 'nature,lake,adventure', '08:00-18:00', '全天', true, true, true),
+('蓝月谷', '雪山脚下的蓝色湖泊', '丽江', 'nature', '玉龙雪山景区内', 4.6, 0, 90, 'https://picsum.photos/400/250?random=17', 'nature,scenic,photo,lake', '09:00-16:00', '中午', true, true, true),
+('木府', '丽江土司府邸，建筑精美', '丽江', 'culture', '丽江古城内', 4.3, 40, 90, 'https://picsum.photos/400/250?random=18', 'culture,history,museum', '08:30-17:30', '上午', true, true, true),
+('黑龙潭公园', '观赏玉龙雪山倒影的最佳地点', '丽江', 'nature', '丽江市古城区民主路', 4.4, 0, 60, 'https://picsum.photos/400/250?random=19', 'nature,park,scenic,photo', '07:00-20:00', '早晨', true, true, true),
+('白沙古镇', '纳西族文化发源地', '丽江', 'culture', '丽江市玉龙纳西族自治县', 4.2, 0, 120, 'https://picsum.photos/400/250?random=20', 'culture,ancient,art', '全天开放', '下午', true, true, true),
+('狮子山', '俯瞰丽江古城全景', '丽江', 'scenic', '丽江古城内', 4.1, 15, 60, 'https://picsum.photos/400/250?random=21', 'scenic,view,photo', '08:00-19:00', '傍晚', true, false, true),
+('四方街', '丽江古城中心，美食购物', '丽江', 'food', '丽江古城中心', 4.3, 0, 90, 'https://picsum.photos/400/250?random=22', 'food,shopping,nightlife', '全天开放', '夜晚', true, true, true),
+('茶马古道', '体验古代商贸通道', '丽江', 'adventure', '丽江市周边', 4.0, 200, 360, 'https://picsum.photos/400/250?random=23', 'adventure,history,outdoor', '08:00-18:00', '全天', true, false, true),
+('玉水寨', '纳西族东巴文化圣地', '丽江', 'culture', '丽江市玉龙纳西族自治县', 4.2, 35, 90, 'https://picsum.photos/400/250?random=24', 'culture,temple,scenic', '08:00-18:00', '上午', true, true, true);

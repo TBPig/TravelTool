@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行程详情 - 旅游路线助手</title>
+    <link rel="stylesheet" href="../styles/Header.css">
+    <link rel="stylesheet" href="../styles/Footer.css">
+    <link rel="stylesheet" href="../styles/Common.css">
+    <link rel="stylesheet" href="../styles/Itinerary.css">
+    <link rel="stylesheet" href="../styles/Sidebar.css">
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/auth.js"></script>
+    <script src="../scripts/components.js" defer></script>
+    <script src="../scripts/sidebar.js" defer></script>
+    <script src="../scripts/itinerary.js" defer></script>
+</head>
+<body>
+<!-- 头部导航容器 -->
+<div id="header-container"></div>
+
+<!-- 主内容区 -->
+<main class="main-content">
+    <div class="itinerary-page">
+        <!-- 行程概览 -->
+        <section class="itinerary-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="trip-info">
+                        <h1 id="trip-title">🎯 我的行程</h1>
+                        <div class="trip-meta" id="trip-meta">
+                            <!-- 动态填充 -->
+                        </div>
+                    </div>
+                    <div class="trip-actions">
+                        <button class="btn-secondary" onclick="goBackToRecommend()">← 返回调整</button>
+                        <button class="btn-primary" onclick="startTrip()">🚀 开始行程</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 行程统计卡片 -->
+        <section class="itinerary-stats">
+            <div class="container">
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-value" id="stat-days">-</div>
+                        <div class="stat-label">行程天数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📍</div>
+                        <div class="stat-value" id="stat-attractions">-</div>
+                        <div class="stat-label">景点数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-value" id="stat-duration">-</div>
+                        <div class="stat-label">总游玩时长</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value" id="stat-cost">-</div>
+                        <div class="stat-label">预估费用</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 地图区域 -->
+        <section class="map-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">🗺️ 行程地图</h2>
+                    <p class="section-desc">直观查看景点分布和路线规划</p>
+                </div>
+                <div class="map-container" id="map-container">
+                    <div class="map-placeholder">
+                        <div class="map-icon">🗺️</div>
+                        <p>地图加载中...</p>
+                        <div class="map-hint">使用高德地图或百度地图 API 展示景点路线</div>
+                    </div>
+                    <!-- 景点标记点 -->
+                    <div class="map-markers" id="map-markers">
+                        <!-- 动态填充 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 每日行程时间轴 -->
+        <section class="timeline-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">📋 详细行程</h2>
+                    <p class="section-desc">按日查看完整行程安排，包含交通时间和游玩建议</p>
+                </div>
+                <div class="timeline-tabs" id="day-tabs">
+                    <!-- 日期标签 -->
+                </div>
+                <div class="timeline-content" id="timeline-content">
+                    <!-- 时间轴内容 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 实用信息 -->
+        <section class="info-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">ℹ️ 实用信息</h2>
+                </div>
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="info-icon">🎒</div>
+                        <h3>行前准备</h3>
+                        <ul id="packing-list">
+                            <li>身份证/护照</li>
+                            <li>手机充电宝</li>
+                            <li>舒适的步行鞋</li>
+                            <li>防晒用品</li>
+                            <li>常用药品</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">🚌</div>
+                        <h3>交通建议</h3>
+                        <ul id="transport-tips">
+                            <li>建议使用公共交通或打车软件</li>
+                            <li>提前下载离线地图</li>
+                            <li>景点间预留充足换乘时间</li>
+                            <li>高峰期注意避开拥堵路段</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">⚠️</div>
+                        <h3>注意事项</h3>
+                        <ul id="notice-list">
+                            <li>遵守景区规定，文明游览</li>
+                            <li>注意保管个人财物</li>
+                            <li>根据天气调整行程</li>
+                            <li>保持手机电量充足</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<!-- 页脚容器 -->
+<div id="footer-container"></div>
+
+<!-- 景点详情模态框 -->
+<div class="modal-overlay" id="attraction-modal" style="display: none;">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <div class="modal-body" id="modal-body">
+            <!-- 动态填充 -->
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

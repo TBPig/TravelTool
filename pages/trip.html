@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行中助手 - 旅游路线助手</title>
+    <link rel="stylesheet" href="../styles/Header.css">
+    <link rel="stylesheet" href="../styles/Footer.css">
+    <link rel="stylesheet" href="../styles/Common.css">
+    <link rel="stylesheet" href="../styles/Trip.css">
+    <link rel="stylesheet" href="../styles/Sidebar.css">
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/auth.js"></script>
+    <script src="../scripts/components.js" defer></script>
+    <script src="../scripts/sidebar.js" defer></script>
+    <script src="../scripts/trip.js" defer></script>
+</head>
+<body>
+<!-- 头部导航容器 -->
+<div id="header-container"></div>
+
+<!-- 主内容区 -->
+<main class="main-content">
+    <div class="trip-page">
+        <!-- 行程状态栏 -->
+        <section class="trip-status-bar">
+            <div class="container">
+                <div class="status-content">
+                    <div class="status-left">
+                        <div class="trip-timer">
+                            <div class="timer-label">行程进行中</div>
+                            <div class="timer-value" id="trip-timer">00:00:00</div>
+                        </div>
+                        <div class="trip-progress">
+                            <div class="progress-text">
+                                <span>行程进度</span>
+                                <span id="progress-text">0/0</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-right">
+                        <div class="weather-widget" id="weather-widget">
+                            <span class="weather-icon">☀️</span>
+                            <span class="weather-temp">--°C</span>
+                            <span class="weather-desc">--</span>
+                        </div>
+                        <button class="btn-end-trip" onclick="endTrip()">结束行程</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主要内容网格 -->
+        <div class="trip-grid">
+            <!-- 左侧：地图导航 -->
+            <section class="map-panel">
+                <div class="panel-header">
+                    <h3>🗺️ 实时导航</h3>
+                    <div class="map-controls">
+                        <button class="control-btn" onclick="locateCurrentPosition()" title="定位当前位置">
+                            📍
+                        </button>
+                        <button class="control-btn" onclick="toggleMapLayer()" title="切换地图图层">
+                            🗺️
+                        </button>
+                    </div>
+                </div>
+                <div class="map-view" id="map-view">
+                    <div class="map-placeholder">
+                        <div class="map-icon">🗺️</div>
+                        <p>地图导航区域</p>
+                        <div class="map-hint">集成高德/百度地图 API 实现实时导航</div>
+                    </div>
+                    <!-- 路线信息覆盖层 -->
+                    <div class="route-overlay" id="route-overlay">
+                        <div class="route-info">
+                            <div class="route-destination">
+                                <span class="label">前往</span>
+                                <span class="value" id="nav-destination">--</span>
+                            </div>
+                            <div class="route-details">
+                                <span class="detail-item">
+                                    <span class="icon">🚗</span>
+                                    <span id="nav-distance">--</span>
+                                </span>
+                                <span class="detail-item">
+                                    <span class="icon">⏱️</span>
+                                    <span id="nav-duration">--</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 中间：当前景点状态 -->
+            <section class="current-panel">
+                <div class="panel-header">
+                    <h3>📍 当前景点</h3>
+                    <div class="status-badge" id="attraction-status">未开始</div>
+                </div>
+                <div class="current-content" id="current-content">
+                    <div class="attraction-card" id="current-attraction">
+                        <div class="attraction-image">
+                            <img id="current-image" src="" alt="景点图片" />
+                            <div class="image-overlay">
+                                <div class="attraction-number" id="current-number">1</div>
+                            </div>
+                        </div>
+                        <div class="attraction-info">
+                            <h2 class="attraction-name" id="current-name">--</h2>
+                            <p class="attraction-desc" id="current-desc">--</p>
+                            <div class="attraction-meta">
+                                <span class="meta-item">⏱️ <span id="current-duration">--</span></span>
+                                <span class="meta-item">💰 <span id="current-price">--</span></span>
+                                <span class="meta-item">⭐ <span id="current-rating">--</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 景点操作区 -->
+                    <div class="action-area" id="action-area">
+                        <button class="action-btn btn-arrived" id="btn-arrived" onclick="markArrived()">
+                            <span class="btn-icon">📍</span>
+                            <span class="btn-text">我已到达</span>
+                        </button>
+                        <button class="action-btn btn-start" id="btn-start" onclick="startVisiting()" style="display: none;">
+                            <span class="btn-icon">🎫</span>
+                            <span class="btn-text">开始游览</span>
+                        </button>
+                        <button class="action-btn btn-finish" id="btn-finish" onclick="finishVisiting()" style="display: none;">
+                            <span class="btn-icon">✅</span>
+                            <span class="btn-text">结束游览</span>
+                        </button>
+                        <button class="action-btn btn-next" id="btn-next" onclick="goToNext()" style="display: none;">
+                            <span class="btn-icon">🚶</span>
+                            <span class="btn-text">前往下一景点</span>
+                        </button>
+                    </div>
+
+                    <!-- 游览计时器 -->
+                    <div class="visit-timer" id="visit-timer" style="display: none;">
+                        <div class="timer-label">游览时长</div>
+                        <div class="timer-display" id="visit-timer-display">00:00</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 右侧：AI 助手 -->
+            <section class="assistant-panel">
+                <div class="panel-header">
+                    <h3>🤖 AI 旅行助手</h3>
+                    <button class="clear-btn" onclick="clearChat()">清空</button>
+                </div>
+                <div class="chat-container" id="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message system">
+                            <div class="message-avatar">🤖</div>
+                            <div class="message-content">
+                                <p>您好！我是您的 AI 旅行助手。在行程中我可以帮您：</p>
+                                <ul>
+                                    <li>提醒景点开放时间</li>
+                                    <li>建议周边美食</li>
+                                    <li>回答旅行问题</li>
+                                    <li>协助调整行程</li>
+                                </ul>
+                                <p>有什么我可以帮您的吗？</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <div class="quick-actions">
+                            <button class="quick-btn" onclick="sendQuickMessage('附近有什么好吃的？')">🍜 附近美食</button>
+                            <button class="quick-btn" onclick="sendQuickMessage('这个景点有什么注意事项？')">⚠️ 注意事项</button>
+                            <button class="quick-btn" onclick="sendQuickMessage('帮我调整行程')">🔄 调整行程</button>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="text" 
+                                   class="chat-input" 
+                                   id="chat-input" 
+                                   placeholder="输入您的问题..."
+                                   onkeypress="handleKeyPress(event)">
+                            <button class="send-btn" onclick="sendMessage()">发送</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 今日行程概览 -->
+        <section class="today-overview">
+            <div class="container">
+                <div class="panel-header">
+                    <h3>📋 今日行程概览</h3>
+                    <div class="day-selector">
+                        <button class="day-btn" onclick="changeDay(-1)">← 前一天</button>
+                        <span class="current-day" id="current-day-label">第 1 天</span>
+                        <button class="day-btn" onclick="changeDay(1)">后一天 →</button>
+                    </div>
+                </div>
+                <div class="timeline-horizontal" id="today-timeline">
+                    <!-- 动态填充 -->
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<!-- 页脚容器 -->
+<div id="footer-container"></div>
+
+<!-- 调整行程模态框 -->
+<div class="modal-overlay" id="adjust-modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🔄 调整行程</h3>
+            <button class="modal-close" onclick="closeAdjustModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="adjust-options">
+                <div class="option-group">
+                    <h4>跳过当前景点</h4>
+                    <p>如果当前景点无法前往，可以跳过并前往下一景点</p>
+                    <button class="option-btn btn-skip" onclick="skipCurrentAttraction()">跳过此景点</button>
+                </div>
+                <div class="option-group">
+                    <h4>延长游览时间</h4>
+                    <p>如果当前景点需要更多时间，可以延长停留</p>
+                    <div class="time-selector">
+                        <button class="time-btn" onclick="extendTime(30)">+30分钟</button>
+                        <button class="time-btn" onclick="extendTime(60)">+1小时</button>
+                        <button class="time-btn" onclick="extendTime(120)">+2小时</button>
+                    </div>
+                </div>
+                <div class="option-group">
+                    <h4>重新规划路线</h4>
+                    <p>根据当前位置重新优化剩余行程路线</p>
+                    <button class="option-btn btn-replan" onclick="replanRoute()">重新规划</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

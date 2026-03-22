@@ -347,50 +347,29 @@ async function generateRoute() {
     localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile));
     updateProfileSummary(profile);
 
-    // 根据条件筛选路线
-    try {
-        const params = new URLSearchParams();
-        params.append('departure', departure);
-        params.append('destination', destination);
-        if (interests.length > 0) {
-            params.append('interests', interests.join(','));
-        }
-        params.append('intensity', intensity);
-        params.append('companion', companion);
-
-        const response = await fetch(`${API_BASE_URL}/routes?${params}`);
-        const result = await response.json();
-
-        if (result.success && result.data.length > 0) {
-            renderRoutes(result.data);
-            showNotification(`🎉 为您找到 ${result.data.length} 条符合条件的路线！`, 'success');
-        } else {
-            showNotification('未找到精确匹配的路线，为您显示相似推荐', 'info');
-            // 尝试更宽松的搜索
-            const relaxedParams = new URLSearchParams();
-            relaxedParams.append('departure', departure);
-            const relaxedResponse = await fetch(`${API_BASE_URL}/routes?${relaxedParams}`);
-            const relaxedResult = await relaxedResponse.json();
-            if (relaxedResult.success && relaxedResult.data.length > 0) {
-                renderRoutes(relaxedResult.data);
-            } else {
-                loadRoutes();
-            }
-        }
-    } catch (error) {
-        console.error('搜索路线失败:', error);
-        // 模拟生成路线建议
-        const intensityText = getIntensityText(intensity);
-        const companionText = getCompanionText(companion);
-        const interestText = interests.length > 0
-            ? interests.map(i => getInterestTagText(i)).join('、')
-            : '综合体验';
-
-        showNotification(`正在为您规划: ${departure}→${destination} ${days} ${intensityText} · ${companionText} · ${interestText}`, 'info');
-
-        // 滚动到推荐路线区域
-        document.getElementById('routes-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // 构建 URL 参数并跳转到推荐页
+    const params = new URLSearchParams();
+    params.append('departure', departure);
+    params.append('destination', destination);
+    params.append('days', days);
+    params.append('intensity', intensity);
+    params.append('companion', companion);
+    if (interests.length > 0) {
+        params.append('interests', interests.join(','));
     }
+
+    // 显示加载提示
+    showNotification('🎯 正在为您生成路线推荐...', 'info');
+
+    // 完成信息输入步骤
+    if (window.SidebarAPI) {
+        window.SidebarAPI.completeStep('input');
+    }
+
+    // 跳转到推荐页面
+    setTimeout(() => {
+        window.location.href = `./recommend.html?${params}`;
+    }, 500);
 }
 
 // 页面加载时检查登录状态

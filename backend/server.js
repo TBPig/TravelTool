@@ -134,16 +134,107 @@ app.get('/api/attractions', async (req, res) => {
             paramIndex++;
         }
         if (type) {
-            query += ` AND type = $${paramIndex}`;
-            params.push(type);
-            paramIndex++;
+            query += ` AND (type = $${paramIndex} OR tags ILIKE $${paramIndex + 1})`;
+            params.push(type, `%${type}%`);
+            paramIndex += 2;
         }
+
+        query += ' ORDER BY rating DESC, created_at DESC';
 
         const result = await pool.query(query, params);
         res.json({ success: true, data: result.rows });
     } catch (err) {
         console.error('获取景点列表失败:', err);
         res.status(500).json({ success: false, message: '获取景点列表失败' });
+    }
+});
+
+// 获取推荐景点（根据用户偏好）
+app.get('/api/recommendations', async (req, res) => {
+    try {
+        const { city, interests, intensity, companion } = req.query;
+        
+        let query = 'SELECT * FROM attractions WHERE 1=1';
+        const params = [];
+        let paramIndex = 1;
+
+        // 城市筛选
+        if (city) {
+            query += ` AND city ILIKE $${paramIndex}`;
+            params.push(`%${city}%`);
+            paramIndex++;
+        }
+
+        // 兴趣标签筛选
+        if (interests) {
+            const interestList = interests.split(',');
+            const interestConditions = interestList.map((_, idx) => 
+                `(type ILIKE $${paramIndex + idx} OR tags ILIKE $${paramIndex + idx})`
+            ).join(' OR ');
+            query += ` AND (${interestConditions})`;
+            interestList.forEach(interest => params.push(`%${interest}%`));
+            paramIndex += interestList.length;
+        }
+
+        // 同行人筛选
+        if (companion) {
+            const companionField = {
+                'family': 'suitable_for_family',
+                'elderly': 'suitable_for_elderly',
+                'couple': 'suitable_for_couple'
+            }[companion];
+            if (companionField) {
+                query += ` AND ${companionField} = true`;
+            }
+        }
+
+        query += ' ORDER BY rating DESC, recommended_duration ASC';
+
+        const result = await pool.query(query, params);
+        
+        // 计算匹配度
+        const attractionsWithScore = result.rows.map(attraction => {
+            let score = 50; // 基础分
+            
+            // 根据兴趣匹配加分
+            if (interests) {
+                const interestList = interests.split(',');
+                interestList.forEach(interest => {
+                    if (attraction.type === interest || 
+                        (attraction.tags && attraction.tags.includes(interest))) {
+                        score += 15;
+                    }
+                });
+            }
+            
+            // 根据评分加分
+            if (attraction.rating) {
+                score += (attraction.rating - 3) * 5;
+            }
+            
+            // 根据游玩强度调整
+            if (intensity) {
+                const duration = attraction.recommended_duration || 120;
+                if (intensity === 'relaxed' && duration <= 90) {
+                    score += 10;
+                } else if (intensity === 'intensive' && duration >= 180) {
+                    score += 10;
+                }
+            }
+            
+            return {
+                ...attraction,
+                match_score: Math.min(100, Math.max(0, Math.round(score)))
+            };
+        });
+        
+        // 按匹配度排序
+        attractionsWithScore.sort((a, b) => b.match_score - a.match_score);
+        
+        res.json({ success: true, data: attractionsWithScore });
+    } catch (err) {
+        console.error('获取推荐景点失败:', err);
+        res.status(500).json({ success: false, message: '获取推荐景点失败' });
     }
 });
 

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>路线推荐 - 旅游路线助手</title>
+    <link rel="stylesheet" href="../styles/Header.css">
+    <link rel="stylesheet" href="../styles/Footer.css">
+    <link rel="stylesheet" href="../styles/Common.css">
+    <link rel="stylesheet" href="../styles/Recommend.css">
+    <link rel="stylesheet" href="../styles/Sidebar.css">
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/auth.js"></script>
+    <script src="../scripts/components.js" defer></script>
+    <script src="../scripts/sidebar.js" defer></script>
+    <script src="../scripts/recommend.js" defer></script>
+</head>
+<body>
+<!-- 头部导航容器 -->
+<div id="header-container"></div>
+
+<!-- 主内容区 -->
+<main class="main-content">
+    <div class="recommend-page">
+        <!-- 搜索条件摘要 -->
+        <section class="search-summary">
+            <div class="container">
+                <div class="summary-card">
+                    <h2>🎯 您的旅行画像</h2>
+                    <div class="summary-tags" id="search-summary">
+                        <!-- 动态填充 -->
+                    </div>
+                    <button class="btn-modify" onclick="goBackToHome()">✏️ 修改条件</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 推荐景点列表 -->
+        <section class="section attractions-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">📍 为您推荐的景点</h2>
+                    <p class="section-desc">根据您的偏好智能匹配，匹配度越高越符合您的需求</p>
+                </div>
+                <div class="attractions-list" id="attractions-container">
+                    <div class="loading">正在为您推荐景点...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 初步路线方案 -->
+        <section class="section route-preview-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">🗺️ 初步路线方案</h2>
+                    <p class="section-desc">基于推荐景点生成的初步行程，您可以调整景点后生成最终行程</p>
+                </div>
+                <div class="route-preview" id="route-preview">
+                    <div class="route-timeline" id="route-timeline">
+                        <!-- 动态填充 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 操作按钮 -->
+        <section class="section action-section">
+            <div class="container">
+                <div class="action-buttons">
+                    <button class="btn-refresh" onclick="refreshRecommendations()">🔄 重新推荐</button>
+                    <button class="btn-confirm" onclick="confirmRoute()">✅ 确认生成最终行程</button>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<!-- 页脚容器 -->
+<div id="footer-container"></div>
+
+</body>
+</html>
