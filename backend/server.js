@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const pool = require('./db');
@@ -10,6 +11,19 @@ const PORT = process.env.PORT || 3000;
 // 中间件
 app.use(cors());
 app.use(express.json());
+
+// 密码加密函数
+function hashPassword(password) {
+    return crypto.createHash('sha256').update(password).digest('hex');
+}
+
+// 生成简单token
+function generateToken(userId) {
+    return crypto.randomBytes(32).toString('hex') + '_' + userId;
+}
+
+// 内存中存储token (生产环境应使用Redis)
+const tokenStore = new Map();
 
 // 健康检查
 app.get('/api/health', (req, res) => {
@@ -131,6 +145,141 @@ app.get('/api/attractions', async (req, res) => {
         console.error('获取景点列表失败:', err);
         res.status(500).json({ success: false, message: '获取景点列表失败' });
     }
+});
+
+// ========== 用户相关 API ==========
+
+// 用户注册
+app.post('/api/auth/register', async (req, res) => {
+    try {
+        const { username, email, password, nickname, phone } = req.body;
+
+        // 验证必填字段
+        if (!username || !email || !password) {
+            return res.status(400).json({ success: false, message: '用户名、邮箱和密码为必填项' });
+        }
+
+        // 检查用户名是否已存在
+        const existingUser = await pool.query('SELECT * FROM users WHERE username = $1 OR email = $2', [username, email]);
+        if (existingUser.rows.length > 0) {
+            return res.status(409).json({ success: false, message: '用户名或邮箱已存在' });
+        }
+
+        // 加密密码
+        const passwordHash = hashPassword(password);
+
+        // 创建用户
+        const result = await pool.query(
+            `INSERT INTO users (username, email, password_hash, nickname, phone) 
+             VALUES ($1, $2, $3, $4, $5) RETURNING id, username, email, nickname, phone, created_at`,
+            [username, email, passwordHash, nickname || username, phone]
+        );
+
+        const user = result.rows[0];
+        const token = generateToken(user.id);
+        tokenStore.set(token, { userId: user.id, username: user.username });
+
+        res.status(201).json({
+            success: true,
+            message: '注册成功',
+            data: {
+                user: user,
+                token: token
+            }
+        });
+    } catch (err) {
+        console.error('用户注册失败:', err);
+        res.status(500).json({ success: false, message: '注册失败，请稍后重试' });
+    }
+});
+
+// 用户登录
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        if (!username || !password) {
+            return res.status(400).json({ success: false, message: '用户名和密码为必填项' });
+        }
+
+        // 查找用户
+        const result = await pool.query(
+            'SELECT id, username, email, password_hash, nickname, phone, avatar_url, created_at FROM users WHERE username = $1 OR email = $1',
+            [username]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(401).json({ success: false, message: '用户名或密码错误' });
+        }
+
+        const user = result.rows[0];
+        const passwordHash = hashPassword(password);
+
+        // 验证密码
+        if (user.password_hash !== passwordHash) {
+            return res.status(401).json({ success: false, message: '用户名或密码错误' });
+        }
+
+        // 生成token
+        const token = generateToken(user.id);
+        tokenStore.set(token, { userId: user.id, username: user.username });
+
+        // 删除敏感信息
+        delete user.password_hash;
+
+        res.json({
+            success: true,
+            message: '登录成功',
+            data: {
+                user: user,
+                token: token
+            }
+        });
+    } catch (err) {
+        console.error('用户登录失败:', err);
+        res.status(500).json({ success: false, message: '登录失败，请稍后重试' });
+    }
+});
+
+// 获取当前用户信息
+app.get('/api/auth/me', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ success: false, message: '未提供认证令牌' });
+        }
+
+        const token = authHeader.substring(7);
+        const tokenData = tokenStore.get(token);
+
+        if (!tokenData) {
+            return res.status(401).json({ success: false, message: '令牌无效或已过期' });
+        }
+
+        const result = await pool.query(
+            'SELECT id, username, email, nickname, phone, avatar_url, created_at FROM users WHERE id = $1',
+            [tokenData.userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, message: '用户不存在' });
+        }
+
+        res.json({ success: true, data: result.rows[0] });
+    } catch (err) {
+        console.error('获取用户信息失败:', err);
+        res.status(500).json({ success: false, message: '获取用户信息失败' });
+    }
+});
+
+// 用户登出
+app.post('/api/auth/logout', (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        tokenStore.delete(token);
+    }
+    res.json({ success: true, message: '登出成功' });
 });
 
 // 启动服务器

@@ -1,5 +1,6 @@
 -- 创建数据库（如果不存在）
 -- CREATE DATABASE traveltool;
+-- $env:PGCLIENTENCODING="UTF8"; psql -U postgres -d traveltool -f backend/init.sql
 
 -- 使用数据库
 -- \c traveltool;
@@ -46,6 +47,19 @@ INSERT INTO routes (title, description, departure_city, destination_city, days, 
 ('川西秘境环线', '成都 → 四姑娘山 → 丹巴 → 新都桥 → 稻城亚丁，探索川西高原', '成都', '稻城', 10, '较高', 'adventure,nature', 'https://picsum.photos/400/250?random=2'),
 ('江南水乡慢游', '苏州 → 乌镇 → 杭州 → 绍兴，感受江南烟雨与古镇风情', '苏州', '绍兴', 5, '中等', 'relax,culture', 'https://picsum.photos/400/250?random=3'),
 ('西北大环线', '西宁 → 青海湖 → 茶卡盐湖 → 敦煌 → 张掖，穿越西北壮美风光', '西宁', '张掖', 8, '中等', 'nature,adventure', 'https://picsum.photos/400/250?random=4');
+
+-- 创建用户表
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    nickname VARCHAR(50),
+    avatar_url VARCHAR(500),
+    phone VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- 插入示例景点数据
 INSERT INTO attractions (name, description, city, type) VALUES

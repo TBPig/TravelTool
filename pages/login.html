@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 旅游路线助手</title>
+    <link rel="stylesheet" href="../styles/Header.css">
+    <link rel="stylesheet" href="../styles/Footer.css">
+    <link rel="stylesheet" href="../styles/Common.css">
+    <style>
+        /* 登录页面专用样式 */
+        .auth-container {
+            min-height: calc(100vh - 140px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .auth-box {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .auth-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: #bfbfbf;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background-color: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 8px;
+        }
+
+        .btn-submit:hover {
+            background-color: #40a9ff;
+        }
+
+        .btn-submit:disabled {
+            background-color: #bfbfbf;
+            cursor: not-allowed;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .auth-footer p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .auth-footer a {
+            color: #1890ff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background-color: #fff2f0;
+            border: 1px solid #ffccc7;
+            color: #ff4d4f;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            background-color: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<!-- 头部导航 -->
+<header class="header">
+    <div class="header-container">
+        <div class="logo">
+            <a href="./home.html">
+                <h1>🗺️ 旅游路线助手</h1>
+            </a>
+        </div>
+        <nav class="nav">
+            <ul class="nav-list">
+                <li><a href="./home.html">路线推荐</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<!-- 登录表单 -->
+<main class="auth-container">
+    <div class="auth-box">
+        <div class="auth-header">
+            <h1>欢迎回来</h1>
+            <p>登录您的账号，开启旅程规划</p>
+        </div>
+
+        <div class="error-message" id="error-message"></div>
+        <div class="success-message" id="success-message"></div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">用户名/邮箱</label>
+                <input type="text" id="username" name="username" placeholder="请输入用户名或邮箱" required>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" placeholder="请输入密码" required>
+            </div>
+            <button type="submit" class="btn-submit" id="submit-btn">登录</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>还没有账号？<a href="./register.html">立即注册</a></p>
+        </div>
+    </div>
+</main>
+
+<!-- 页脚 -->
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3>关于我们</h3>
+            <p>旅游路线助手专注于为旅行者提供智能、个性化的旅游路线规划服务。</p>
+        </div>
+        <div class="footer-section">
+            <h3>联系我们</h3>
+            <p>邮箱：contact@routeguide.com</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 旅游路线助手. All rights reserved.</p>
+    </div>
+</footer>
+
+<script>
+    const API_BASE_URL = 'http://localhost:3000/api';
+
+    // 检查是否已登录
+    const token = localStorage.getItem('token');
+    if (token) {
+        window.location.href = './home.html';
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const submitBtn = document.getElementById('submit-btn');
+        const errorMsg = document.getElementById('error-message');
+        const successMsg = document.getElementById('success-message');
+
+        // 重置消息
+        errorMsg.classList.remove('show');
+        successMsg.classList.remove('show');
+
+        // 简单验证
+        if (!username || !password) {
+            errorMsg.textContent = '请填写用户名和密码';
+            errorMsg.classList.add('show');
+            return;
+        }
+
+        // 禁用按钮
+        submitBtn.disabled = true;
+        submitBtn.textContent = '登录中...';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // 保存登录信息
+                localStorage.setItem('token', result.data.token);
+                localStorage.setItem('user', JSON.stringify(result.data.user));
+
+                successMsg.textContent = '登录成功，正在跳转...';
+                successMsg.classList.add('show');
+
+                // 跳转到首页
+                setTimeout(() => {
+                    window.location.href = './home.html';
+                }, 1000);
+            } else {
+                errorMsg.textContent = result.message || '登录失败';
+                errorMsg.classList.add('show');
+            }
+        } catch (error) {
+            console.error('登录失败:', error);
+            errorMsg.textContent = '网络错误，请稍后重试';
+            errorMsg.classList.add('show');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '登录';
+        }
+    });
+</script>
+</body>
+</html>

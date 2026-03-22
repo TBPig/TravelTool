@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 旅游路线助手</title>
+    <link rel="stylesheet" href="../styles/Header.css">
+    <link rel="stylesheet" href="../styles/Footer.css">
+    <link rel="stylesheet" href="../styles/Common.css">
+    <style>
+        /* 用户中心专用样式 */
+        .user-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: calc(100vh - 140px);
+        }
+
+        .user-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 40px;
+            color: #fff;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .user-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #fff;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .user-info h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .user-info p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .user-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 30px;
+        }
+
+        .user-sidebar {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 20px 0;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu li {
+            padding: 0;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 14px 24px;
+            color: #333;
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            color: #1890ff;
+            background-color: #f0f7ff;
+            border-left-color: #1890ff;
+        }
+
+        .user-main {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 32px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-item.full-width {
+            grid-column: span 2;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .btn-edit {
+            padding: 10px 24px;
+            background-color: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 24px;
+        }
+
+        .btn-edit:hover {
+            background-color: #40a9ff;
+        }
+
+        .btn-logout {
+            padding: 10px 24px;
+            background-color: #ff4d4f;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 24px;
+            margin-left: 12px;
+        }
+
+        .btn-logout:hover {
+            background-color: #ff7875;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+        }
+
+        .error-message {
+            background-color: #fff2f0;
+            border: 1px solid #ffccc7;
+            color: #ff4d4f;
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .user-content {
+                grid-template-columns: 1fr;
+            }
+
+            .user-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-item.full-width {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- 头部导航 -->
+<header class="header">
+    <div class="header-container">
+        <div class="logo">
+            <a href="./home.html">
+                <h1>🗺️ 旅游路线助手</h1>
+            </a>
+        </div>
+        <nav class="nav">
+            <ul class="nav-list">
+                <li><a href="./home.html">路线推荐</a></li>
+            </ul>
+        </nav>
+        <div class="user-actions" id="user-actions">
+            <!-- 动态加载 -->
+        </div>
+    </div>
+</header>
+
+<!-- 用户中心内容 -->
+<main class="user-container">
+    <div class="user-header">
+        <div class="user-avatar-large" id="user-avatar">?</div>
+        <div class="user-info">
+            <h1 id="user-display-name">加载中...</h1>
+            <p id="user-email">加载中...</p>
+        </div>
+    </div>
+
+    <div class="user-content">
+        <aside class="user-sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active">基本信息</a></li>
+                <li><a href="./home.html">返回首页</a></li>
+            </ul>
+        </aside>
+
+        <div class="user-main">
+            <h2 class="section-title">基本信息</h2>
+
+            <div id="loading-state" class="loading">正在加载用户信息...</div>
+            <div id="error-state" class="error-message" style="display: none;"></div>
+
+            <div id="user-info-content" style="display: none;">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">用户名</span>
+                        <span class="info-value" id="info-username">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">昵称</span>
+                        <span class="info-value" id="info-nickname">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">邮箱</span>
+                        <span class="info-value" id="info-email">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">手机号</span>
+                        <span class="info-value" id="info-phone">-</span>
+                    </div>
+                    <div class="info-item full-width">
+                        <span class="info-label">注册时间</span>
+                        <span class="info-value" id="info-created">-</span>
+                    </div>
+                </div>
+
+                <button class="btn-logout" onclick="logout()">退出登录</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- 页脚 -->
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3>关于我们</h3>
+            <p>旅游路线助手专注于为旅行者提供智能、个性化的旅游路线规划服务。</p>
+        </div>
+        <div class="footer-section">
+            <h3>联系我们</h3>
+            <p>邮箱：contact@routeguide.com</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 旅游路线助手. All rights reserved.</p>
+    </div>
+</footer>
+
+<script>
+    const API_BASE_URL = 'http://localhost:3000/api';
+
+    // 检查登录状态
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = './login.html';
+    }
+
+    // 加载用户信息
+    async function loadUserInfo() {
+        const loadingState = document.getElementById('loading-state');
+        const errorState = document.getElementById('error-state');
+        const contentState = document.getElementById('user-info-content');
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                const user = result.data;
+                displayUserInfo(user);
+                loadingState.style.display = 'none';
+                contentState.style.display = 'block';
+            } else {
+                // token无效，跳转到登录页
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = './login.html';
+            }
+        } catch (error) {
+            console.error('加载用户信息失败:', error);
+            loadingState.style.display = 'none';
+            errorState.textContent = '加载失败，请刷新页面重试';
+            errorState.style.display = 'block';
+        }
+    }
+
+    // 显示用户信息
+    function displayUserInfo(user) {
+        const displayName = user.nickname || user.username;
+        const initial = displayName.charAt(0).toUpperCase();
+
+        document.getElementById('user-avatar').textContent = initial;
+        document.getElementById('user-display-name').textContent = displayName;
+        document.getElementById('user-email').textContent = user.email;
+
+        document.getElementById('info-username').textContent = user.username;
+        document.getElementById('info-nickname').textContent = user.nickname || '-';
+        document.getElementById('info-email').textContent = user.email;
+        document.getElementById('info-phone').textContent = user.phone || '-';
+        document.getElementById('info-created').textContent = new Date(user.created_at).toLocaleString('zh-CN');
+
+        // 更新导航栏用户显示
+        updateNavUser(user);
+    }
+
+    // 更新导航栏
+    function updateNavUser(user) {
+        const userActions = document.getElementById('user-actions');
+        const displayName = user.nickname || user.username;
+        const initial = displayName.charAt(0).toUpperCase();
+
+        userActions.innerHTML = `
+            <div class="user-dropdown">
+                <div class="user-info" onclick="toggleDropdown()">
+                    <div class="user-avatar">${initial}</div>
+                    <span class="user-name">${displayName}</span>
+                </div>
+                <div class="dropdown-menu" id="user-dropdown-menu">
+                    <a href="./user.html">个人中心</a>
+                    <button onclick="logout()">退出登录</button>
+                </div>
+            </div>
+        `;
+    }
+
+    // 切换下拉菜单
+    function toggleDropdown() {
+        const menu = document.getElementById('user-dropdown-menu');
+        if (menu) {
+            menu.classList.toggle('show');
+        }
+    }
+
+    // 点击页面其他地方关闭下拉菜单
+    document.addEventListener('click', function(event) {
+        const dropdown = document.querySelector('.user-dropdown');
+        const menu = document.getElementById('user-dropdown-menu');
+        if (dropdown && menu && !dropdown.contains(event.target)) {
+            menu.classList.remove('show');
+        }
+    });
+
+    // 退出登录
+    async function logout() {
+        if (token) {
+            try {
+                await fetch(`${API_BASE_URL}/auth/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+            } catch (error) {
+                console.error('登出请求失败:', error);
+            }
+        }
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = './home.html';
+    }
+
+    // 页面加载时获取用户信息
+    document.addEventListener('DOMContentLoaded', loadUserInfo);
+</script>
+</body>
+</html>
