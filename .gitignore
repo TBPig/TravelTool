@@ -8,3 +8,6 @@
 *.njsproj
 *.sln
 *.sw?
+
+/backend/.env
+/backend/node_modules/

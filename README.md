@@ -12,16 +12,6 @@
 - **CSS3** - 样式设计
 - **原生 JavaScript** - 交互逻辑
 
-## 页面说明
-
-| 页面 | 文件路径 | 功能描述 |
-|------|----------|----------|
-| 首页 | `src/index.html` | 网站主页，展示热门目的地和服务介绍 |
-| 目的地 | `src/pages/destinations.html` | 旅游目的地浏览与搜索 |
-| 酒店 | `src/pages/hotels.html` | 酒店信息展示与查询 |
-| 攻略 | `src/pages/guides.html` | 旅游攻略与指南 |
-| 关于我们 | `src/pages/about.html` | 平台介绍与联系方式 |
-
 ## 快速开始
 
 ### 方式一：直接打开
