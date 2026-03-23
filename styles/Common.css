@@ -83,35 +83,6 @@
   gap: 24px 20px;
 }
 
-.form-grid .form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-grid .form-group label {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
-  font-weight: 500;
-}
-
-.form-grid .form-group input,
-.form-grid .form-group select {
-  padding: 14px 16px;
-  border: 2px solid #e8e8e8;
-  border-radius: 8px;
-  font-size: 15px;
-  outline: none;
-  transition: border-color 0.3s;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.form-grid .form-group input:focus,
-.form-grid .form-group select:focus {
-  border-color: #1890ff;
-}
-
 .form-group {
   display: flex;
   flex-direction: column;

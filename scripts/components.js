@@ -75,16 +75,8 @@ function initHeader() {
     // 未登录状态保持默认的登录/注册按钮
 }
 
-/**
- * 加载所有公共组件
- * @returns {Promise<void>}
- */
-async function loadCommonComponents() {
-    await Promise.all([
-        loadComponent('header'),
-        loadComponent('footer')
-    ]);
-}
-
 // 页面加载完成后自动加载组件
-document.addEventListener('DOMContentLoaded', loadCommonComponents);
+document.addEventListener('DOMContentLoaded', () => Promise.all([
+    loadComponent('header'),
+    loadComponent('footer')
+]));

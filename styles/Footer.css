@@ -1,8 +1,6 @@
 .footer {
   background-color: #1a1a2e;
   color: #fff;
-  padding: 50px 0 20px;
-  margin-top: 50px;
 }
 
 .footer-container {
@@ -15,7 +13,6 @@
 }
 
 .footer-section h3 {
-  color: #fff;
   margin-bottom: 20px;
   font-size: 18px;
 }
@@ -55,13 +52,13 @@
 
 .footer-bottom {
   text-align: center;
-  margin-top: 40px;
-  padding-top: 20px;
+  padding: 5px;
   border-top: 1px solid #333;
 }
 
 .footer-bottom p {
   color: #666;
+  margin: 0;
   font-size: 14px;
 }
 
