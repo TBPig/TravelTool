@@ -122,6 +122,7 @@ npx http-server -p 8080
 - **POST** `/api/routes` - 创建新路线
 
 ### 景点相关
+
 - **GET** `/api/attractions` - 获取所有景点
   - 查询参数: `city`, `type`
 
