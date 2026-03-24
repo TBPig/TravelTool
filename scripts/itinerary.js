@@ -398,11 +398,6 @@ function startTrip() {
         currentAttractionIndex: 0
     }));
 
-    // 完成行程选择步骤
-    if (window.SidebarAPI) {
-        window.SidebarAPI.completeStep('itinerary');
-    }
-
     showNotification('🚀 正在进入行中助手...', 'success');
 
     setTimeout(() => {

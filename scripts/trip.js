@@ -66,11 +66,6 @@ function initializeTrip() {
     // 设置导航信息
     updateNavigation();
 
-    // 完成行程查看步骤
-    if (window.SidebarAPI) {
-        window.SidebarAPI.completeStep('trip');
-    }
-
     // 发送欢迎消息
     setTimeout(() => {
         sendSystemMessage(`欢迎开始您的旅程！第一个景点是「${getCurrentAttraction()?.name}」，准备好了吗？`);

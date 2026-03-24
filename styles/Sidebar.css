@@ -2,9 +2,9 @@
 .sidebar {
     position: fixed;
     left: 0;
-    top: 60px;
+    top: 40px;
     width: 220px;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 40px);
     background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
     color: #fff;
     transition: width 0.3s ease;
@@ -46,6 +46,7 @@
 .toggle-text {
     margin-left: 10px;
     font-size: 14px;
+    color: #333;
     white-space: nowrap;
     opacity: 1;
     transition: opacity 0.2s;
@@ -57,42 +58,22 @@
     margin-left: 0;
 }
 
-/* 导航菜单 */
+/* 导航菜单 - 使用 Grid 布局 */
 .sidebar-nav {
     flex: 1;
     padding: 15px 0;
     overflow-y: auto;
+    display: grid;
+    grid-template-rows: repeat(4, auto) 1fr auto;
+    gap: 0;
 }
 
-.nav-section {
-    margin-bottom: 20px;
-}
-
-.section-title {
-    padding: 0 20px;
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-    white-space: nowrap;
-    opacity: 1;
-    transition: opacity 0.2s;
-}
-
-.sidebar.collapsed .section-title {
-    opacity: 0;
-}
-
-.nav-list {
-    flex-direction: column;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.nav-item {
-    position: relative;
+/* 个人中心链接 - 置于最底部 */
+.nav-link-user {
+    grid-row: -1;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 10px;
+    padding-top: 10px;
 }
 
 .nav-link {
@@ -100,31 +81,21 @@
     flex-direction: row;
     align-items: center;
     padding: 12px 15px;
-    color: rgba(255, 255, 255, 0.8);
+    color: #333;
     text-decoration: none;
     transition: all 0.2s;
     cursor: pointer;
 }
 
 .nav-link:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.3);
+    color: #000;
 }
 
 .nav-link.active {
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.4);
+    color: #000;
     border-left: 3px solid #63b3ed;
-}
-
-.nav-link.disabled {
-    color: rgba(255, 255, 255, 0.3);
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-.nav-link.disabled:hover {
-    background: transparent;
 }
 
 .nav-icon {

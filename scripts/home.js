@@ -319,11 +319,6 @@ async function generateRoute() {
     // 显示加载提示
     showNotification('🎯 正在为您生成路线推荐...', 'info');
 
-    // 完成信息输入步骤
-    if (window.SidebarAPI) {
-        window.SidebarAPI.completeStep('input');
-    }
-
     // 跳转到推荐页面
     setTimeout(() => {
         window.location.href = `./recommend.html?${params}`;

@@ -1,23 +1,29 @@
-/* 英雄区域 */
-.hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  padding: 4px 4px;
-  text-align: center;
+/* 页面网格布局 */
+.page-grid {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "sidebar footer";
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
 }
 
-.hero-content h1 {
-  font-size: 48px;
-  font-weight: 700;
-  margin-top: 2px;
-  margin-bottom: 2px;
+.page-header {
+  grid-area: header;
 }
 
-.hero-content p {
-  font-size: 20px;
-  opacity: 0.9;
-  margin-top: 2px;
-  margin-bottom: 2px;
+.page-sidebar {
+  grid-area: sidebar;
+}
+
+.page-main {
+  grid-area: main;
+}
+
+.page-footer {
+  grid-area: footer;
 }
 
 /* 路线规划表单 */
@@ -595,6 +601,19 @@
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .page-grid {
+    grid-template-areas:
+      "header"
+      "main"
+      "footer";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .page-sidebar {
+    display: none;
+  }
+
   .hero-content h1 {
     font-size: 32px;
   }

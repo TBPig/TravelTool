@@ -16,11 +16,16 @@
     <script src="../scripts/recommend.js" defer></script>
 </head>
 <body>
-<!-- 头部导航容器 -->
-<div id="header-container"></div>
+<!-- 页面网格布局容器 -->
+<div class="page-grid">
+    <!-- 头部导航容器 -->
+    <header class="page-header" id="header-container"></header>
 
-<!-- 主内容区 -->
-<main class="main-content">
+    <!-- 侧边栏容器 -->
+    <aside class="page-sidebar" id="sidebar-container"></aside>
+
+    <!-- 主内容区 -->
+    <main class="page-main">
     <div class="recommend-page">
         <!-- 搜索条件摘要 -->
         <section class="search-summary">
@@ -75,8 +80,9 @@
     </div>
 </main>
 
-<!-- 页脚容器 -->
-<div id="footer-container"></div>
+    <!-- 页脚容器 -->
+    <footer class="page-footer" id="footer-container"></footer>
+</div>
 
 </body>
 </html>

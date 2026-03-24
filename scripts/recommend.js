@@ -533,11 +533,6 @@ function confirmRoute() {
     localStorage.setItem('travel_selected_attractions', JSON.stringify(selected));
     localStorage.setItem('travel_route_params', JSON.stringify(currentRecommendations.searchParams));
 
-    // 完成路线选择步骤
-    if (window.SidebarAPI) {
-        window.SidebarAPI.completeStep('route');
-    }
-
     showNotification('✅ 正在生成最终行程...', 'success');
 
     // 跳转到行程详情页

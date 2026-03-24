@@ -1,0 +1,30 @@
+<!-- 左侧栏导航 -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-toggle" onclick="toggleSidebar()">
+        <span class="toggle-icon">◀</span>
+        <span class="toggle-text">收起菜单</span>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="./home.html" class="nav-link" data-step="input">
+            <span class="nav-icon">📝</span>
+            <span class="nav-text">信息输入</span>
+        </a>
+        <a href="./recommend.html" class="nav-link" data-step="route">
+            <span class="nav-icon">🗺️</span>
+            <span class="nav-text">路线选择</span>
+        </a>
+        <a href="./itinerary.html" class="nav-link" data-step="itinerary">
+            <span class="nav-icon">📋</span>
+            <span class="nav-text">行程选择</span>
+        </a>
+        <a href="./trip.html" class="nav-link" data-step="trip">
+            <span class="nav-icon">✈️</span>
+            <span class="nav-text">行程查看</span>
+        </a>
+        <a href="./user.html" class="nav-link nav-link-user" data-step="user">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">个人中心</span>
+        </a>
+    </nav>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>

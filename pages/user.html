@@ -16,65 +16,71 @@
     <script src="../scripts/user.js" defer></script>
 </head>
 <body>
-<!-- 头部导航容器 -->
-<div id="header-container"></div>
+<!-- 页面网格布局容器 -->
+<div class="page-grid">
+    <!-- 头部导航容器 -->
+    <header class="page-header" id="header-container"></header>
 
-<!-- 用户中心内容 -->
-<main class="user-container">
-    <div class="user-header">
-        <div class="user-avatar-large" id="user-avatar">?</div>
-        <div class="user-info">
-            <h1 id="user-display-name">加载中...</h1>
-            <p id="user-email">加载中...</p>
-        </div>
-    </div>
+    <!-- 侧边栏容器 -->
+    <aside class="page-sidebar" id="sidebar-container"></aside>
 
-    <div class="user-content">
-        <aside class="user-sidebar">
-            <ul class="sidebar-menu">
-                <li><a href="#" class="active">基本信息</a></li>
-                <li><a href="./home.html">返回首页</a></li>
-            </ul>
-        </aside>
-
-        <div class="user-main">
-            <h2 class="section-title">基本信息</h2>
-
-            <div id="loading-state" class="loading">正在加载用户信息...</div>
-            <div id="error-state" class="error-message" style="display: none;"></div>
-
-            <div id="user-info-content" style="display: none;">
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">用户名</span>
-                        <span class="info-value" id="info-username">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">昵称</span>
-                        <span class="info-value" id="info-nickname">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">邮箱</span>
-                        <span class="info-value" id="info-email">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">手机号</span>
-                        <span class="info-value" id="info-phone">-</span>
-                    </div>
-                    <div class="info-item full-width">
-                        <span class="info-label">注册时间</span>
-                        <span class="info-value" id="info-created">-</span>
-                    </div>
-                </div>
-
-                <button class="btn-logout" onclick="logout()">退出登录</button>
+    <!-- 用户中心内容 -->
+    <main class="page-main user-container">
+        <div class="user-header">
+            <div class="user-avatar-large" id="user-avatar">?</div>
+            <div class="user-info">
+                <h1 id="user-display-name">加载中...</h1>
+                <p id="user-email">加载中...</p>
             </div>
         </div>
-    </div>
-</main>
 
-<!-- 页脚容器 -->
-<div id="footer-container"></div>
+        <div class="user-content">
+            <aside class="user-sidebar">
+                <ul class="sidebar-menu">
+                    <li><a href="#" class="active">基本信息</a></li>
+                    <li><a href="./home.html">返回首页</a></li>
+                </ul>
+            </aside>
+
+            <div class="user-main">
+                <h2 class="section-title">基本信息</h2>
+
+                <div id="loading-state" class="loading">正在加载用户信息...</div>
+                <div id="error-state" class="error-message" style="display: none;"></div>
+
+                <div id="user-info-content" style="display: none;">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">用户名</span>
+                            <span class="info-value" id="info-username">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">昵称</span>
+                            <span class="info-value" id="info-nickname">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">邮箱</span>
+                            <span class="info-value" id="info-email">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">手机号</span>
+                            <span class="info-value" id="info-phone">-</span>
+                        </div>
+                        <div class="info-item full-width">
+                            <span class="info-label">注册时间</span>
+                            <span class="info-value" id="info-created">-</span>
+                        </div>
+                    </div>
+
+                    <button class="btn-logout" onclick="logout()">退出登录</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚容器 -->
+    <footer class="page-footer" id="footer-container"></footer>
+</div>
 
 </body>
 </html>

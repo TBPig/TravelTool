@@ -15,20 +15,17 @@
     <script src="../scripts/home.js" defer></script>
 </head>
 <body>
-<!-- 头部导航容器 -->
-<div id="header-container"></div>
+<!-- 页面网格布局容器 -->
+<div class="page-grid">
+    <!-- 头部导航容器 -->
+    <header class="page-header" id="header-container"></header>
 
-<!-- 主内容区 -->
-<main class="main-content">
+    <!-- 侧边栏容器 -->
+    <aside class="page-sidebar" id="sidebar-container"></aside>
+
+    <!-- 主内容区 -->
+    <main class="page-main">
     <div class="home">
-        <!-- 英雄区域 -->
-        <section class="hero">
-            <div class="hero-content">
-                <h1>智能旅游路线规划</h1>
-                <p>根据您的偏好，为您推荐最佳旅游路线</p>
-            </div>
-        </section>
-
         <!-- 路线推荐工具 -->
         <section class="section route-planner">
             <div class="container">
@@ -170,8 +167,9 @@
     </div>
 </main>
 
-<!-- 页脚容器 -->
-<div id="footer-container"></div>
+    <!-- 页脚容器 -->
+    <footer class="page-footer" id="footer-container"></footer>
+</div>
 
 </body>
 </html>
