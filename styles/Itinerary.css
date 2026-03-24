@@ -3,7 +3,7 @@
 /* 行程头部 */
 .itinerary-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 60px 20px 40px;
+    padding: 8px 20px;
     color: #fff;
 }
 
@@ -12,29 +12,13 @@
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
+    align-items: center;
     gap: 20px;
 }
 
-.trip-info h1 {
-    font-size: 32px;
-    margin-bottom: 16px;
-    font-weight: 700;
-}
-
-.trip-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.trip-meta span {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 14px;
-    backdrop-filter: blur(10px);
+.header-content h1 {
+    font-size: 20px;
+    font-weight: 600;
 }
 
 .trip-actions {
@@ -82,7 +66,6 @@
 .itinerary-stats {
     background: #f8f9fa;
     padding: 30px 20px;
-    margin-top: -20px;
 }
 
 .stats-grid {

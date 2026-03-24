@@ -162,7 +162,7 @@
     background: #ed8936;
 }
 
-/* 主内容区适配 */
+/* 主内容区适配 - 通过 page-main 的 padding-left 实现，此处保留用于兼容非 grid 布局 */
 .main-content.with-sidebar {
     margin-left: 220px;
     transition: margin-left 0.3s ease;
@@ -172,13 +172,14 @@
     margin-left: 50px;
 }
 
-/* 用户中心特殊处理 */
-.user-container.with-sidebar {
+/* 用户中心特殊处理 - 在 page-grid 布局中，通过 page-main 的 padding-left 实现偏移 */
+/* 所以这里只针对非 page-grid 布局的情况 */
+.user-container:not(.page-main).with-sidebar {
     margin-left: 220px;
     transition: margin-left 0.3s ease;
 }
 
-.user-container.with-sidebar.sidebar-collapsed {
+.user-container:not(.page-main).with-sidebar.sidebar-collapsed {
     margin-left: 50px;
 }
 
@@ -198,12 +199,14 @@
     }
 
     .main-content.with-sidebar,
-    .user-container.with-sidebar {
+    .user-container.with-sidebar,
+    .user-container:not(.page-main).with-sidebar {
         margin-left: 0;
     }
 
     .main-content.with-sidebar.sidebar-collapsed,
-    .user-container.with-sidebar.sidebar-collapsed {
+    .user-container.with-sidebar.sidebar-collapsed,
+    .user-container:not(.page-main).with-sidebar.sidebar-collapsed {
         margin-left: 0;
     }
 

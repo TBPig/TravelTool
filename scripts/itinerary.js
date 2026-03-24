@@ -145,20 +145,9 @@ function renderTripHeader() {
     if (!params) return;
     
     const titleEl = document.getElementById('trip-title');
-    const metaEl = document.getElementById('trip-meta');
-    
-    titleEl.textContent = `🎯 ${params.destination || '目的地'}之旅`;
-    
-    const interestsText = params.interests && params.interests.length > 0
-        ? params.interests.map(i => getInterestTagText(i)).join('、')
-        : '综合体验';
-    
-    metaEl.innerHTML = `
-        <span>📍 ${params.destination || '未设置'}</span>
-        <span>📅 ${getDaysText(params.days)}</span>
-        <span>👥 ${getCompanionText(params.companion)}</span>
-        <span>🏷️ ${interestsText}</span>
-    `;
+    if (titleEl) {
+        titleEl.textContent = `🎯 ${params.destination || '目的地'}之旅`;
+    }
 }
 
 // 渲染统计卡片

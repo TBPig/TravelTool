@@ -1,6 +1,5 @@
 /**
- * 左侧栏导航组件
- * 管理流程导航和状态
+ * 左侧栏导航组件加载器
  */
 
 // 流程配置
@@ -31,22 +30,15 @@ function getCurrentPageId() {
  * @returns {Promise<void>}
  */
 async function loadSidebar() {
+    const container = document.querySelector('#sidebar-container');
+    if (!container) return;
+
     try {
         const response = await fetch('../components/sidebar.html');
         if (!response.ok) {
             throw new Error(`加载 sidebar 失败: ${response.status}`);
         }
-        const html = await response.text();
-
-        // 插入到body开头
-        const body = document.body;
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = html;
-
-        // 将侧边栏插入到body的第一个子元素位置
-        while (tempDiv.firstChild) {
-            body.insertBefore(tempDiv.firstChild, body.firstChild);
-        }
+        container.innerHTML = await response.text();
 
         // 设置当前页面激活状态
         setActiveNavItem();
@@ -89,11 +81,17 @@ function updateSidebarUI() {
  */
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
+    const pageGrid = document.querySelector('.page-grid');
     const mainContent = document.querySelector('.main-content, .user-container');
 
     if (sidebar) {
         sidebar.classList.toggle('collapsed');
         const isCollapsed = sidebar.classList.contains('collapsed');
+
+        // 同步切换 page-grid 的 sidebar-collapsed 类，用于调整 main 的 padding
+        if (pageGrid) {
+            pageGrid.classList.toggle('sidebar-collapsed', isCollapsed);
+        }
 
         if (mainContent) {
             mainContent.classList.toggle('sidebar-collapsed', isCollapsed);
@@ -109,11 +107,15 @@ function toggleSidebar() {
  */
 function restoreSidebarState() {
     const sidebar = document.getElementById('sidebar');
+    const pageGrid = document.querySelector('.page-grid');
     const mainContent = document.querySelector('.main-content, .user-container');
     const isCollapsed = localStorage.getItem('sidebar_collapsed') === '1';
 
     if (sidebar && isCollapsed) {
         sidebar.classList.add('collapsed');
+        if (pageGrid) {
+            pageGrid.classList.add('sidebar-collapsed');
+        }
         if (mainContent) {
             mainContent.classList.add('sidebar-collapsed');
         }

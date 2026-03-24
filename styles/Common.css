@@ -3,10 +3,9 @@
   display: grid;
   grid-template-areas:
     "header header"
-    "sidebar main"
-    "sidebar footer";
+    "sidebar main";
   grid-template-columns: 220px 1fr;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: 40px 1fr;
   min-height: 100vh;
 }
 
@@ -20,6 +19,12 @@
 
 .page-main {
   grid-area: main;
+  transition: padding-left 0.3s ease;
+}
+
+/* 当 sidebar 折叠时，调整 grid 布局和 main 的 padding */
+.page-grid.sidebar-collapsed {
+  grid-template-columns: 50px 1fr;
 }
 
 .page-footer {

@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>旅游路线助手 - 智能规划您的旅程</title>
     <link rel="stylesheet" href="../styles/Header.css">
-    <link rel="stylesheet" href="../styles/Footer.css">
     <link rel="stylesheet" href="../styles/Common.css">
     <link rel="stylesheet" href="../styles/Sidebar.css">
     <script src="../scripts/config.js"></script>
     <script src="../scripts/auth.js"></script>
-    <script src="../scripts/components.js" defer></script>
+    <script src="../scripts/header.js" defer></script>
     <script src="../scripts/sidebar.js" defer></script>
     <script src="../scripts/home.js" defer></script>
 </head>
@@ -33,15 +32,15 @@
                     <!-- 统一表单：两行三列布局 -->
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>📍 出发地</label>
+                            <label for="departure">📍 出发地</label>
                             <input type="text" id="departure" placeholder="请输入出发地"/>
                         </div>
                         <div class="form-group">
-                            <label>🎯 目的地</label>
+                            <label for="destination">🎯 目的地</label>
                             <input type="text" id="destination" placeholder="请输入目的地"/>
                         </div>
                         <div class="form-group">
-                            <label>🏷️ 兴趣标签</label>
+                            <label for="interests-container">🏷️ 兴趣标签</label>
                             <div class="multi-select" id="interests-container">
                                 <div class="multi-select-trigger" onclick="toggleInterestsDropdown()">
                                     <span class="multi-select-placeholder" id="interests-display">请选择兴趣标签</span>
@@ -85,7 +84,7 @@
                             <input type="hidden" id="interests" value=""/>
                         </div>
                         <div class="form-group">
-                            <label>📅 出行天数</label>
+                            <label for="days">📅 出行天数</label>
                             <select id="days">
                                 <option value="">请选择天数</option>
                                 <option value="1-3">1-3天（短途游）</option>
@@ -95,7 +94,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>⚡ 游玩强度</label>
+                            <label for="intensity">⚡ 游玩强度</label>
                             <select id="intensity">
                                 <option value="">请选择强度</option>
                                 <option value="relaxed">休闲轻松（每天1-2个景点）</option>
@@ -104,7 +103,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>👥 同行人类型</label>
+                            <label for="companion">👥 同行人类型</label>
                             <select id="companion">
                                 <option value="">请选择同行人类型</option>
                                 <option value="solo">🧍 独自一人</option>
@@ -167,8 +166,6 @@
     </div>
 </main>
 
-    <!-- 页脚容器 -->
-    <footer class="page-footer" id="footer-container"></footer>
 </div>
 
 </body>
