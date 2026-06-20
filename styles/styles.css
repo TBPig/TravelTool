@@ -1577,5 +1577,5 @@ textarea.form-control {
 #page-top .masthead { margin-top: -72px; }
 
 
-/* Override agency.css transparent navbar - always dark */
-#mainNav { background-color: #212529 !important; }
+/* Dark navbar on non-home pages */
+body.no-masthead #mainNav { background-color: #212529 !important; }
