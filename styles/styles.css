@@ -713,7 +713,7 @@ textarea.form-control {
   z-index: 10;
 }
 
-.multi-select-dropdown.open { display: block; }
+.multi-select-dropdown.show { display: block; }
 
 .multi-select-option {
   display: flex;
@@ -1565,3 +1565,8 @@ textarea.form-control {
     font-size: 0.8rem;
   }
 }
+
+#routes-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+#routes-container .route-card { height: 100%; }
+@media (max-width: 992px) { #routes-container { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 576px) { #routes-container { grid-template-columns: 1fr; } }
