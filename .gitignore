@@ -13,3 +13,8 @@
 /backend/node_modules/
 /pgdata/
 *.log
+
+/startbootstrap-agency-gh-pages/
+/assets/
+
+*.docx
