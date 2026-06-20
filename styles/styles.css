@@ -1575,3 +1575,7 @@ textarea.form-control {
 /* Fix navbar overlap on non-grid pages */
 #page-top { padding-top: 72px; }
 #page-top .masthead { margin-top: -72px; }
+
+
+/* Override agency.css transparent navbar - always dark */
+#mainNav { background-color: #212529 !important; }
