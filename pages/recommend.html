@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>路线推荐 - 旅行路线助手</title>
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+    <link href="../styles/agency.css" rel="stylesheet" />
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/auth.js"></script>
+    <script src="../scripts/header.js" defer></script>
+    <script src="../scripts/sidebar.js" defer></script>
+    <script src="../scripts/agency-nav.js" defer></script>
+    <script src="../scripts/recommend.js" defer></script>
+</head>
+<body id="page-top">
+    <header id="header-container"></header>
+    <aside id="sidebar-container"></aside>
+
+    <!-- Search Summary Bar -->
+    <section class="status-bar" style="margin-top:0">
+        <div class="container">
+            <div class="search-summary" id="search-summary">
+                <span style="font-family:var(--font-heading);font-weight:700;font-size:0.85rem;text-transform:uppercase">搜索条件：</span>
+                <span style="color:rgba(255,255,255,0.65)">请先设置出行偏好</span>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:center">
+                <button class="btn btn-outline-light btn-sm text-uppercase" onclick="refreshRecommendations()">刷新推荐</button>
+                <button class="btn btn-warning btn-sm text-uppercase" onclick="confirmSelection()" style="background:#ffc800;border-color:#ffc800;color:#212529">确认选择</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Attractions Grid -->
+    <section class="page-section bg-light">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-heading text-uppercase">景点推荐</h2>
+                <h3 class="section-subheading text-muted">根据您的偏好智能匹配最佳景点</h3>
+            </div>
+            <div class="row g-4" id="attractions-list">
+                <div class="col-12 text-center py-5 text-muted">正在加载推荐...</div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

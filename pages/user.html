@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>个人中心 - 旅行路线助手</title>
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+    <link href="../styles/agency.css" rel="stylesheet" />
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/auth.js"></script>
+    <script src="../scripts/header.js" defer></script>
+    <script src="../scripts/sidebar.js" defer></script>
+    <script src="../scripts/agency-nav.js" defer></script>
+    <script src="../scripts/user.js" defer></script>
+</head>
+<body id="page-top">
+    <header id="header-container"></header>
+    <aside id="sidebar-container"></aside>
+
+    <div class="container user-page">
+        <!-- Profile Header -->
+        <div class="user-header-card">
+            <div class="user-avatar-xl" id="user-avatar-large">U</div>
+            <div>
+                <h1 id="user-display-name">用户</h1>
+                <p id="user-email-display">加载中...</p>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="user-content-grid">
+            <nav>
+                <ul class="user-sidebar-menu">
+                    <li><a href="#" class="active" onclick="switchTab('profile')">个人信息</a></li>
+                    <li><a href="#" onclick="switchTab('trips')">我的行程</a></li>
+                    <li><a href="#" onclick="switchTab('settings')">账户设置</a></li>
+                </ul>
+            </nav>
+
+            <div class="user-main-content" id="user-main-content">
+                <h2 class="text-uppercase" style="font-size:1.5rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid #e9ecef">个人信息</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">用户名</span>
+                        <span class="info-value" id="info-username">--</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">注册时间</span>
+                        <span class="info-value" id="info-created">--</span>
+                    </div>
+                    <div class="info-item full-width">
+                        <span class="info-label">个人简介</span>
+                        <span class="info-value" id="info-bio">还没有填写个人简介</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button class="btn btn-warning btn-xl text-uppercase me-2" onclick="editProfile()" style="background:#ffc800;border-color:#ffc800;color:#212529">编辑资料</button>
+                    <button class="btn btn-outline-danger text-uppercase" onclick="logout()">退出登录</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

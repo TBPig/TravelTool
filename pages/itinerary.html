@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>行程详情 - 旅行路线助手</title>
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+    <link href="../styles/agency.css" rel="stylesheet" />
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/auth.js"></script>
+    <script src="../scripts/header.js" defer></script>
+    <script src="../scripts/sidebar.js" defer></script>
+    <script src="../scripts/agency-nav.js" defer></script>
+    <script src="../scripts/itinerary.js" defer></script>
+</head>
+<body id="page-top">
+    <header id="header-container"></header>
+    <aside id="sidebar-container"></aside>
+
+    <!-- Header Bar -->
+    <section class="status-bar">
+        <div class="container">
+            <h1 style="font-size:1.25rem;margin:0;text-transform:uppercase;font-weight:800">行程详情</h1>
+            <div style="display:flex;gap:0.75rem">
+                <button class="btn btn-outline-light btn-sm text-uppercase" onclick="window.history.back()">返回</button>
+                <button class="btn btn-warning btn-sm text-uppercase" onclick="startTrip()" style="background:#ffc800;border-color:#ffc800;color:#212529">开始出行</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="page-section bg-light" style="padding:3rem 0">
+        <div class="container">
+            <div class="row g-3" id="stats-grid">
+                <div class="col-sm-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-value" id="stat-days">0</div>
+                        <div class="stat-label">行程天数</div>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon">📍</div>
+                        <div class="stat-value" id="stat-attractions">0</div>
+                        <div class="stat-label">景点数量</div>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon">🚶</div>
+                        <div class="stat-value" id="stat-distance">0</div>
+                        <div class="stat-label">总路程(km)</div>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon">💵</div>
+                        <div class="stat-value" id="stat-budget">0</div>
+                        <div class="stat-label">预估预算(元)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map -->
+    <section class="page-section" style="padding:3rem 0">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2 class="section-heading text-uppercase">路线概览</h2>
+            </div>
+            <div class="map-view" id="map-view">
+                <div class="map-placeholder">
+                    <div class="map-icon">🗺</div>
+                    <p>路线地图加载中...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Day Tabs -->
+    <section class="page-section bg-light">
+        <div class="container">
+            <div class="day-tabs" id="day-tabs"></div>
+
+            <!-- Agency-Style Timeline -->
+            <ul class="timeline" id="timeline-container">
+                <li><div class="text-center py-5 text-muted">正在加载行程...</div></li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Tips -->
+    <section class="page-section">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-heading text-uppercase">实用信息</h2>
+                <h3 class="section-subheading text-muted">出行小贴士</h3>
+            </div>
+            <div class="row text-center" id="info-cards">
+                <div class="col-md-4">
+                    <span class="fa-stack fa-4x">
+                        <i class="fas fa-circle fa-stack-2x text-warning"></i>
+                        <i class="fas fa-cloud-sun fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <h4 class="my-3">天气提醒</h4>
+                    <p class="text-muted">查看目的地天气预报，合理安排衣物和行程</p>
+                </div>
+                <div class="col-md-4">
+                    <span class="fa-stack fa-4x">
+                        <i class="fas fa-circle fa-stack-2x text-warning"></i>
+                        <i class="fas fa-car fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <h4 class="my-3">交通建议</h4>
+                    <p class="text-muted">景点间最佳交通方式推荐，节省路途时间</p>
+                </div>
+                <div class="col-md-4">
+                    <span class="fa-stack fa-4x">
+                        <i class="fas fa-circle fa-stack-2x text-warning"></i>
+                        <i class="fas fa-utensils fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <h4 class="my-3">美食推荐</h4>
+                    <p class="text-muted">沿途不可错过的当地特色美食</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>登录 - 旅行路线助手</title>
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+    <link href="../styles/agency.css" rel="stylesheet" />
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/auth.js"></script>
+    <script src="../scripts/header.js" defer></script>
+    <script src="../scripts/sidebar.js" defer></script>
+    <script src="../scripts/agency-nav.js" defer></script>
+    <script src="../scripts/login.js" defer></script>
+</head>
+<body id="page-top">
+    <header id="header-container"></header>
+    <aside id="sidebar-container"></aside>
+
+    <div class="auth-page">
+        <div class="auth-card">
+            <div class="text-center mb-4">
+                <h2 class="section-heading text-uppercase">欢迎回来</h2>
+                <h3 class="section-subheading text-muted">登录您的账户继续探索旅行路线</h3>
+            </div>
+
+            <div class="alert alert-danger" id="error-message" style="display:none"></div>
+            <div class="alert alert-success" id="success-message" style="display:none"></div>
+
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group mb-3">
+                    <label class="fw-bold mb-2">用户名</label>
+                    <input class="form-control" type="text" id="username" placeholder="请输入用户名" required />
+                </div>
+                <div class="form-group mb-4">
+                    <label class="fw-bold mb-2">密码</label>
+                    <input class="form-control" type="password" id="password" placeholder="请输入密码" required />
+                </div>
+                <button class="btn btn-warning btn-xl text-uppercase w-100" type="submit" style="background:#ffc800;border-color:#ffc800;color:#212529">登录</button>
+            </form>
+
+            <div class="text-center mt-4 pt-3 border-top">
+                <p class="text-muted mb-0">还没有账户？<a href="./register.html" class="fw-bold">立即注册</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
