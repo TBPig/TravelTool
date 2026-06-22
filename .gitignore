@@ -1,7 +1,8 @@
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+/.idea/
+/.vscode/
 .DS_Store
 *.suo
 *.ntvs*
@@ -11,3 +12,4 @@
 
 /backend/.env
 /backend/node_modules/
+/backend/server.log

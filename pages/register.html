@@ -24,23 +24,31 @@
                 <h3 class="section-subheading text-muted">加入我们，开启智能旅行规划之旅</h3>
             </div>
 
-            <div class="alert alert-danger" id="error-message" style="display:none"></div>
-            <div class="alert alert-success" id="success-message" style="display:none"></div>
+            <div class="alert alert-danger" id="error-message"></div>
+            <div class="alert alert-success" id="success-message"></div>
 
-            <form id="register-form" onsubmit="handleRegister(event)">
+            <form id="register-form">
                 <div class="form-group mb-3">
                     <label class="fw-bold mb-2">用户名</label>
                     <input class="form-control" type="text" id="username" placeholder="请输入用户名" required />
                 </div>
                 <div class="form-group mb-3">
+                    <label class="fw-bold mb-2">邮箱</label>
+                    <input class="form-control" type="email" id="email" placeholder="请输入邮箱" required />
+                </div>
+                <div class="form-group mb-3">
                     <label class="fw-bold mb-2">密码</label>
                     <input class="form-control" type="password" id="password" placeholder="请输入密码（至少6位）" required />
                 </div>
-                <div class="form-group mb-4">
+                <div class="form-group mb-3">
                     <label class="fw-bold mb-2">确认密码</label>
                     <input class="form-control" type="password" id="confirm-password" placeholder="请再次输入密码" required />
                 </div>
-                <button class="btn btn-warning btn-xl text-uppercase w-100" type="submit" style="background:#ffc800;border-color:#ffc800;color:#212529">注册</button>
+                <div class="form-group mb-4">
+                    <label class="fw-bold mb-2">昵称（选填）</label>
+                    <input class="form-control" type="text" id="nickname" placeholder="请输入昵称" />
+                </div>
+                <button class="btn btn-warning btn-xl text-uppercase w-100" type="submit" id="submit-btn" style="background:#ffc800;border-color:#ffc800;color:#212529">注册</button>
             </form>
 
             <div class="text-center mt-4 pt-3 border-top">
