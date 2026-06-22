@@ -4,25 +4,25 @@
 
 ## 技术栈
 
-| 层级 | 技术 |
-|------|------|
-| 前端 | HTML5 + CSS3 + Vanilla JS |
-| 样式 | Bootstrap 5 + Agency Theme |
-| 后端 | Node.js + Express |
-| 数据库 | PostgreSQL |
-| 字体 | Montserrat / Roboto Slab |
+| 层级  | 技术                         |
+|-----|----------------------------|
+| 前端  | HTML5 + CSS3 + Vanilla JS  |
+| 样式  | Bootstrap 5 + Agency Theme |
+| 后端  | Node.js + Express          |
+| 数据库 | PostgreSQL                 |
+| 字体  | Montserrat / Roboto Slab   |
 
 ## 页面结构
 
-| 页面 | 说明 |
-|------|------|
-| `pages/home.html` | 首页 — Masthead Hero + 路线规划表单 + 精选路线 |
-| `pages/recommend.html` | 路线推荐 — 景点卡片网格 + 智能匹配 |
-| `pages/itinerary.html` | 行程详情 — 时间轴 + 统计卡片 + 地图 |
-| `pages/trip.html` | 出行助手 — 实时状态 + 三栏面板 + 聊天 |
-| `pages/login.html` | 登录 |
-| `pages/register.html` | 注册 |
-| `pages/user.html` | 个人中心 |
+| 页面                     | 说明                                 |
+|------------------------|------------------------------------|
+| `pages/home.html`      | 首页 — Masthead Hero + 路线规划表单 + 精选路线 |
+| `pages/recommend.html` | 路线推荐 — 景点卡片网格 + 智能匹配               |
+| `pages/itinerary.html` | 行程详情 — 时间轴 + 统计卡片 + 地图             |
+| `pages/trip.html`      | 出行助手 — 实时状态 + 三栏面板 + 聊天            |
+| `pages/login.html`     | 登录                                 |
+| `pages/register.html`  | 注册                                 |
+| `pages/user.html`      | 个人中心                               |
 
 ## 快速启动
 
@@ -48,6 +48,7 @@ npx http-server -p 8081 -c-1
 ```
 
 或使用一键脚本：
+
 ```bash
 powershell -ExecutionPolicy Bypass -File start-local.ps1
 ```
@@ -64,6 +65,7 @@ powershell -ExecutionPolicy Bypass -File start-local.ps1
 ## 设计风格
 
 采用 [Start Bootstrap Agency](https://startbootstrap.com/theme/agency) 设计语言：
+
 - 主色调：金色 `#ffc800` + 深色 `#212529`
 - 导航栏：首页透明 → 滚动变暗，其他页始终深色
 - 排版：Montserrat（标题）+ Roboto Slab（正文）
