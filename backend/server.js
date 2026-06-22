@@ -377,7 +377,7 @@ app.post('/api/auth/logout', (req, res) => {
 // ========== AI路线生成 (Prompt Engineering) ==========
 
 const DOUBAO_API_KEY = "ark-09cfb367-2c27-461a-9d4b-61c5b90d4d8f-00d37";
-const DOUBAO_API_URL = "https://ark.cn-beijing.volces.com/api/v3/responses";
+const DOUBAO_API_URL = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
 const DOUBAO_MODEL = "doubao-seed-2-0-pro-260215";
 
 // 同行人类型映射
@@ -491,15 +491,10 @@ app.post('/api/generate-route', async (req, res) => {
             },
             body: JSON.stringify({
                 model: DOUBAO_MODEL,
-                input: [
-                    {
-                        role: "system",
-                        content: [{ type: "input_text", text: systemPrompt }]
-                    },
-                    {
-                        role: "user",
-                        content: [{ type: "input_text", text: userPrompt }]
-                    }
+                max_tokens: 4096,
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: userPrompt }
                 ]
             })
         });
