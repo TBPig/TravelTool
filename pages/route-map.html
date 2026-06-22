@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>AI路线规划 - 旅行路线助手</title>
+    <title>路线地图 - 旅行路线助手</title>
     <link href="../styles/agency.css" rel="stylesheet" />
     <link href="../styles/styles.css" rel="stylesheet" />
     <script src="../scripts/config.js"></script>
@@ -12,205 +12,629 @@
     <script src="../scripts/sidebar.js" defer></script>
     <script src="../scripts/agency-nav.js" defer></script>
     <style>
-        #map-container { width: 100%; height: 500px; border-radius: 12px; overflow: hidden; }
-        .route-day-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        body.demo-map-page { background: #f4f7fb; }
+        .demo-hero {
+            background: linear-gradient(135deg, #172033 0%, #263852 56%, #0f766e 100%);
+            color: #fff;
+            padding: 7rem 0 2.5rem;
         }
-        .route-day-card h4 {
-            font-family: "Montserrat", "Microsoft YaHei", sans-serif;
-            font-weight: 700;
-            color: #212529;
-            margin-bottom: 12px;
-        }
-        .attraction-item {
-            display: flex;
+        .demo-hero .eyebrow {
+            display: inline-flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px dashed #e2e8f0;
+            gap: 8px;
+            padding: 7px 12px;
+            border: 1px solid rgba(255,255,255,.28);
+            border-radius: 999px;
+            background: rgba(255,255,255,.12);
+            font-size: 12px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
         }
-        .attraction-item:last-child { border-bottom: none; }
-        .attraction-num {
-            width: 28px; height: 28px;
-            background: #ffc800;
-            color: #212529;
+        .demo-title {
+            font-family: "Montserrat", "Microsoft YaHei", sans-serif;
+            font-weight: 800;
+            font-size: clamp(2rem, 4vw, 4.2rem);
+            line-height: 1.05;
+            margin: 0 0 12px;
+        }
+        .demo-subtitle {
+            max-width: 760px;
+            color: rgba(255,255,255,.78);
+            font-size: 1rem;
+            margin: 0;
+        }
+        .demo-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 22px;
+        }
+        .demo-actions .btn {
+            border-radius: 999px;
+            font-weight: 800;
+            letter-spacing: .04em;
+        }
+        .demo-shell {
+            width: min(1500px, calc(100% - 40px));
+            margin: -26px auto 48px;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+            padding: 0 !important;
+        }
+        .metric-card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 18px 45px rgba(15,23,42,.08);
+        }
+        .metric-label {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+        .metric-value {
+            margin-top: 8px;
+            font-family: "Montserrat", "Microsoft YaHei", sans-serif;
+            font-weight: 800;
+            font-size: 1.55rem;
+            color: #172033;
+        }
+        .demo-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 360px;
+            gap: 18px;
+            align-items: stretch;
+            padding: 0 !important;
+        }
+        .map-board {
+            position: relative;
+            min-height: 760px;
+            overflow: hidden;
+            border-radius: 24px;
+            border: 1px solid #d7e0ea;
+            background:
+                radial-gradient(circle at 12% 72%, rgba(20,184,166,.15) 0 14%, transparent 15%),
+                radial-gradient(circle at 80% 17%, rgba(96,165,250,.18) 0 18%, transparent 19%),
+                linear-gradient(135deg, #edf6f7 0%, #f8fafc 42%, #eef2ff 100%);
+            box-shadow: 0 24px 70px rgba(15,23,42,.12);
+        }
+        .map-water {
+            position: absolute;
+            background: rgba(125,211,252,.45);
+            border: 2px solid rgba(14,165,233,.16);
+        }
+        .water-one { width: 240px; height: 170px; left: 6%; top: 48%; border-radius: 48% 52% 43% 57%; transform: rotate(-12deg); }
+        .water-two { width: 210px; height: 150px; right: 7%; top: 14%; border-radius: 54% 46% 48% 52%; transform: rotate(18deg); }
+        .water-three { width: 185px; height: 130px; right: 16%; bottom: 10%; border-radius: 56% 44% 60% 40%; }
+        .road {
+            position: absolute;
+            background: rgba(255,255,255,.9);
+            border: 1px solid rgba(148,163,184,.28);
+            box-shadow: 0 1px 0 rgba(255,255,255,.9);
+        }
+        .road-main { height: 18px; width: 90%; left: 5%; top: 54%; transform: rotate(-7deg); border-radius: 999px; }
+        .road-main.two { top: 34%; transform: rotate(8deg); }
+        .road-main.three { top: 73%; width: 80%; left: 12%; transform: rotate(5deg); }
+        .road-vertical { width: 18px; height: 84%; left: 48%; top: 8%; transform: rotate(3deg); border-radius: 999px; }
+        .road-vertical.two { left: 31%; height: 72%; top: 16%; transform: rotate(-9deg); }
+        .district-label {
+            position: absolute;
+            color: rgba(71,85,105,.35);
+            font-weight: 900;
+            font-size: 42px;
+            letter-spacing: .18em;
+            pointer-events: none;
+        }
+        .route-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+        }
+        .route-path-shadow {
+            fill: none;
+            stroke: rgba(15,23,42,.18);
+            stroke-width: 18;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .route-path {
+            fill: none;
+            stroke: #2563eb;
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 1500;
+            stroke-dashoffset: 1500;
+            animation: drawRoute 1.8s ease forwards;
+        }
+        @keyframes drawRoute { to { stroke-dashoffset: 0; } }
+        .stop-pin {
+            position: absolute;
+            z-index: 5;
+            width: 42px;
+            height: 42px;
+            transform: translate(-50%, -50%);
             border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: #fff;
+            border: 5px solid #ef4444;
+            box-shadow: 0 12px 28px rgba(15,23,42,.24);
+            color: #172033;
+            font-weight: 900;
+            font-family: "Montserrat", "Microsoft YaHei", sans-serif;
+            cursor: pointer;
+            transition: transform .18s ease, box-shadow .18s ease;
+        }
+        .stop-pin:hover,
+        .stop-pin.active {
+            transform: translate(-50%, -50%) scale(1.14);
+            box-shadow: 0 16px 34px rgba(239,68,68,.35);
+        }
+        .stop-pin.start { border-color: #22c55e; }
+        .stop-pin.end { border-color: #111827; background: #ffc800; }
+        .guide-card {
+            position: absolute;
+            z-index: 4;
+            width: 214px;
+            background: rgba(255,255,255,.95);
+            border: 2px solid #fb7185;
+            border-radius: 18px;
+            padding: 12px;
+            box-shadow: 0 18px 45px rgba(15,23,42,.16);
+            backdrop-filter: blur(10px);
+        }
+        .guide-card::after {
+            content: "";
+            position: absolute;
+            width: 44px;
+            height: 2px;
+            background: #fb7185;
+            top: 50%;
+            transform-origin: left center;
+        }
+        .guide-card.left::after { right: -44px; }
+        .guide-card.right::after { left: -44px; }
+        .guide-card h3 {
+            font-size: 1rem;
+            margin: 0 0 6px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+        .guide-card .poster {
+            height: 72px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fef3c7, #fecaca);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 14px;
-            flex-shrink: 0;
+            font-size: 28px;
+            margin-bottom: 8px;
         }
-        .attraction-name { font-weight: 600; color: #334155; }
-        .attraction-hours { font-size: 12px; color: #94a3b8; margin-left: auto; }
-        .day-tip { font-size: 13px; color: #64748b; margin-top: 8px; padding: 8px 12px; background: #fffbeb; border-radius: 8px; }
-        .timeline-dot { color: #ffc800; margin-right: 6px; }
-        .section-divider {
-            border-top: 2px solid #ffc800;
-            width: 60px;
-            margin: 8px 0 20px;
+        .guide-card p {
+            margin: 0 0 8px;
+            font-size: 12px;
+            line-height: 1.45;
+            color: #475569;
+        }
+        .tag-row { display: flex; flex-wrap: wrap; gap: 5px; }
+        .mini-tag {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 999px;
+            padding: 3px 7px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .segment-label {
+            position: absolute;
+            z-index: 6;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(15,23,42,.72);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            box-shadow: 0 10px 25px rgba(15,23,42,.18);
+        }
+        .map-toolbar {
+            position: absolute;
+            z-index: 8;
+            top: 18px;
+            left: 18px;
+            right: 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            pointer-events: none;
+        }
+        .toolbar-pill {
+            pointer-events: auto;
+            background: rgba(15,23,42,.82);
+            color: #fff;
+            border-radius: 999px;
+            padding: 10px 14px;
+            font-weight: 900;
+            box-shadow: 0 14px 35px rgba(15,23,42,.22);
+        }
+        .toolbar-light {
+            background: rgba(255,255,255,.92);
+            color: #1e293b;
+        }
+        .itinerary-panel {
+            background: #fff;
+            border-radius: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 24px 70px rgba(15,23,42,.1);
+            padding: 20px;
+        }
+        .panel-title {
+            font-weight: 900;
+            font-size: 1.25rem;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+        .panel-subtitle { color: #64748b; font-size: 13px; margin-bottom: 18px; }
+        .time-block {
+            border-left: 4px solid #ffc800;
+            padding: 0 0 18px 14px;
+            margin-left: 8px;
+            position: relative;
+        }
+        .time-block::before {
+            content: "";
+            position: absolute;
+            left: -10px;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #172033;
+            border: 3px solid #ffc800;
+        }
+        .time-block strong { display: block; color: #172033; margin-bottom: 6px; }
+        .time-block p { margin: 0; color: #475569; font-size: 13px; line-height: 1.6; }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .feature-chip {
+            padding: 10px;
+            border-radius: 14px;
+            background: #f8fafc;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .route-copy {
+            margin-top: 18px;
+            background: #fff;
+            border-radius: 24px;
+            border: 1px solid #e2e8f0;
+            padding: 22px;
+            box-shadow: 0 18px 50px rgba(15,23,42,.08);
+        }
+        .route-copy h2 { font-size: 1.4rem; font-weight: 900; margin-bottom: 10px; }
+        .route-copy p { color: #475569; line-height: 1.8; margin: 0; }
+        .floating-note {
+            position: absolute;
+            z-index: 7;
+            left: 50%;
+            top: 64%;
+            transform: translateX(-50%);
+            width: min(640px, 80%);
+            padding: 12px 16px;
+            border-radius: 16px;
+            background: rgba(15,23,42,.68);
+            color: #fff;
+            font-weight: 700;
+            line-height: 1.7;
+            box-shadow: 0 18px 45px rgba(15,23,42,.2);
+        }
+        @media (max-width: 1100px) {
+            .demo-layout { grid-template-columns: 1fr; }
+            .map-board { min-height: 680px; }
+            .metric-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 760px) {
+            .demo-shell { width: min(100% - 24px, 1500px); }
+            .metric-grid { grid-template-columns: 1fr; }
+            .map-board { min-height: 980px; }
+            .guide-card {
+                position: relative;
+                left: auto !important;
+                top: auto !important;
+                width: calc(100% - 24px);
+                margin: 10px 12px;
+            }
+            .guide-card::after, .segment-label, .floating-note { display: none; }
+            .mobile-card-stack {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 16px;
+                z-index: 10;
+            }
         }
     </style>
 </head>
-<body id="page-top">
+<body id="page-top" class="no-masthead demo-map-page">
     <header id="header-container"></header>
     <aside id="sidebar-container"></aside>
 
-    <!-- Route Header -->
-    <section class="status-bar">
+    <section class="demo-hero">
         <div class="container">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-                <div>
-                    <h1 style="font-size:1.4rem;margin:0;text-transform:uppercase;font-weight:800" id="route-title">AI路线规划</h1>
-                    <p style="margin:4px 0 0;opacity:0.7;font-size:0.85rem" id="route-subtitle">正在生成...</p>
-                </div>
-                <div style="display:flex;gap:10px">
-                    <button class="btn btn-outline-light btn-sm text-uppercase" onclick="window.history.back()">返回修改</button>
-                    <button class="btn btn-warning btn-sm text-uppercase" onclick="startTrip()" style="background:#ffc800;border-color:#ffc800;color:#212529">开始出行</button>
-                </div>
+            <div class="eyebrow">智能路线规划 · 北京一日游</div>
+            <h1 class="demo-title">北京中轴线一日游攻略地图</h1>
+            <p class="demo-subtitle">根据旅行偏好生成可视化路线、站点顺序、交通时间、景点攻略与行程说明，让一日游安排清晰、顺路、好执行。</p>
+            <div class="demo-actions">
+                <button class="btn btn-warning btn-xl text-uppercase" id="generate-demo">生成北京路线</button>
+                <a class="btn btn-outline-light btn-xl text-uppercase" href="./home.html">返回首页</a>
             </div>
         </div>
     </section>
 
-    <!-- Map Section -->
-    <section class="page-section" style="padding:2rem 0">
-        <div class="container">
-            <h2 class="section-heading">路线地图</h2>
-            <h3 class="section-subheading">景点分布与行程概览</h3>
-            <div id="map-container"></div>
-        </div>
-    </section>
+    <main class="demo-shell">
+        <section class="metric-grid" id="metric-grid"></section>
 
-    <!-- Daily Plan -->
-    <section class="page-section bg-light">
-        <div class="container">
-            <h2 class="section-heading">每日行程</h2>
-            <h3 class="section-subheading">AI为您定制的旅行计划</h3>
-            <div id="daily-plan"></div>
-        </div>
-    </section>
+        <section class="demo-layout">
+            <div class="map-board" id="map-board">
+                <div class="map-water water-one"></div>
+                <div class="map-water water-two"></div>
+                <div class="map-water water-three"></div>
+                <div class="road road-main"></div>
+                <div class="road road-main two"></div>
+                <div class="road road-main three"></div>
+                <div class="road road-vertical"></div>
+                <div class="road road-vertical two"></div>
+                <div class="district-label" style="left:9%;top:13%">西城</div>
+                <div class="district-label" style="right:10%;top:39%">东城</div>
+                <div class="district-label" style="left:13%;bottom:11%">什刹海</div>
 
-    <script src="https://map.qq.com/api/gljs?v=1.exp&key=5NWBZ-EOMKG-MTYQI-QD4EH-V3NYO-E5FA4"></script>
+                <div class="map-toolbar">
+                    <div class="toolbar-pill">👇 点击编号查看景点攻略</div>
+                    <div class="toolbar-pill toolbar-light">地图复位 ⟳</div>
+                </div>
+
+                <svg class="route-svg" viewBox="0 0 1000 760" preserveAspectRatio="none" aria-hidden="true">
+                    <path class="route-path-shadow" d="M520 640 C500 570, 485 520, 492 465 C500 400, 518 350, 514 290 C510 230, 480 190, 455 145" />
+                    <path class="route-path" id="route-path" d="M520 640 C500 570, 485 520, 492 465 C500 400, 518 350, 514 290 C510 230, 480 190, 455 145" />
+                </svg>
+
+                <div id="pins-layer"></div>
+                <div id="labels-layer"></div>
+                <div id="cards-layer"></div>
+                <div class="floating-note" id="route-note"></div>
+                <div class="mobile-card-stack" id="mobile-card-stack"></div>
+            </div>
+
+            <aside class="itinerary-panel">
+                <div class="panel-title">AI 生成路线解读</div>
+                <div class="panel-subtitle">面向首次来北京、偏好历史文化和轻徒步的用户。</div>
+                <div id="timeline-panel"></div>
+                <div class="feature-list">
+                    <div class="feature-chip">📍 自动规划站点顺序</div>
+                    <div class="feature-chip">🚇 估算交通方式</div>
+                    <div class="feature-chip">🎫 标注门票预约</div>
+                    <div class="feature-chip">🍜 补充周边美食</div>
+                </div>
+            </aside>
+        </section>
+
+        <section class="route-copy">
+            <h2>北京行程攻略</h2>
+            <p id="route-copy"></p>
+        </section>
+    </main>
+
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const routeData = JSON.parse(decodeURIComponent(params.get('data') || '{}'));
-
-        document.getElementById('route-title').textContent = routeData.destination + ' ' + routeData.days + '日游';
-        document.getElementById('route-subtitle').textContent = routeData.departure + ' → ' + routeData.destination + ' | ' + routeData.totalAttractions + '个景点';
-
-        // Init map
-        let map;
-        function initMap() {
-            const coords = routeData.destinationCoords || { lat: 39.9042, lng: 116.4074 };
-            map = new TMap.Map('map-container', {
-                center: new TMap.LatLng(coords.lat, coords.lng),
-                zoom: 13,
-                viewMode: '2D'
-            });
-
-            // Add markers for all attractions
-            const markers = [];
-            routeData.dailyPlan.forEach((day, di) => {
-                day.attractions.forEach((attr, ai) => {
-                    const label = String.fromCharCode(65 + di) + (ai + 1);
-                    markers.push({
-                        position: new TMap.LatLng(
-                            coords.lat + (Math.random() - 0.5) * 0.05,
-                            coords.lng + (Math.random() - 0.5) * 0.05
-                        ),
-                        title: attr.name,
-                        label: label
-                    });
-                });
-            });
-
-            if (markers.length > 0 && window.TMap) {
-                new TMap.MultiMarker({
-                    map: map,
-                    styles: {
-                        default: new TMap.MarkerStyle({
-                            width: 32, height: 32,
-                            anchor: { x: 16, y: 32 },
-                            src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40"><path d="M16 0C7.2 0 0 7.2 0 16c0 12 16 24 16 24s16-12 16-24C32 7.2 24.8 0 16 0z" fill="#ffc800" stroke="#212529" stroke-width="2"/><circle cx="16" cy="14" r="6" fill="#212529"/></svg>')
-                        })
-                    },
-                    geometries: markers.map(m => ({
-                        id: m.label,
-                        styleId: 'default',
-                        position: m.position,
-                        properties: { title: m.title }
-                    }))
-                });
-
-                // InfoWindow
-                markers.forEach(m => {
-                    const infoWin = new TMap.InfoWindow({
-                        map: map,
-                        position: m.position,
-                        content: '<div style="padding:8px 12px;font-weight:600">' + m.title + '</div>',
-                        enableCustom: true
-                    });
-                    infoWin.close();
-                });
-            }
-        }
-
-        window.onload = function() {
-            if (typeof TMap !== 'undefined') {
-                initMap();
-            } else {
-                setTimeout(function() {
-                    if (typeof TMap !== 'undefined') initMap();
-                }, 1000);
-            }
+        const demoRoute = {
+            metrics: [
+                { label: '路线长度', value: '8.6 km' },
+                { label: '游玩时间', value: '约 8 小时' },
+                { label: '预计花费', value: '¥120 起' },
+                { label: '适合人群', value: '文化初访' }
+            ],
+            stops: [
+                {
+                    id: 1,
+                    name: '天安门广场',
+                    icon: '🏛',
+                    x: 52,
+                    y: 84,
+                    cardX: 66,
+                    cardY: 75,
+                    side: 'right',
+                    duration: '1h',
+                    tags: ['起点', '城市地标'],
+                    note: '清晨抵达，适合拍摄中轴线开场照片。',
+                    details: '免费开放 · 安检排队 · 建议预约周边参观'
+                },
+                {
+                    id: 2,
+                    name: '故宫博物院',
+                    icon: '🟨',
+                    x: 49,
+                    y: 61,
+                    cardX: 15,
+                    cardY: 56,
+                    side: 'left',
+                    duration: '3h',
+                    tags: ['核心景点', '需预约'],
+                    note: '从午门进入，沿中轴线游览三大殿与后宫区域。',
+                    details: '门票 ¥60 · 8:30-17:00 · 周一闭馆'
+                },
+                {
+                    id: 3,
+                    name: '景山公园',
+                    icon: '⛰',
+                    x: 51,
+                    y: 45,
+                    cardX: 60,
+                    cardY: 38,
+                    side: 'right',
+                    duration: '1h',
+                    tags: ['俯瞰故宫', '拍照'],
+                    note: '登万春亭俯瞰故宫全景，是路线里的高光停靠点。',
+                    details: '门票 ¥2 · 步行 12 分钟 · 日落前最佳'
+                },
+                {
+                    id: 4,
+                    name: '北海公园',
+                    icon: '🌊',
+                    x: 43,
+                    y: 37,
+                    cardX: 11,
+                    cardY: 28,
+                    side: 'left',
+                    duration: '1.5h',
+                    tags: ['湖景', '慢游'],
+                    note: '串联白塔、湖岸和园林空间，节奏从人文转为休闲。',
+                    details: '门票 ¥10 · 可选游船 · 适合午后休息'
+                },
+                {
+                    id: 5,
+                    name: '什刹海',
+                    icon: '🚲',
+                    x: 48,
+                    y: 24,
+                    cardX: 58,
+                    cardY: 17,
+                    side: 'right',
+                    duration: '1.5h',
+                    tags: ['胡同', '湖边'],
+                    note: '沿湖步行或骑行，感受老北京胡同生活。',
+                    details: '免费开放 · 黄昏适合散步 · 周边餐饮多'
+                },
+                {
+                    id: 6,
+                    name: '南锣鼓巷',
+                    icon: '🍢',
+                    x: 45,
+                    y: 12,
+                    cardX: 14,
+                    cardY: 10,
+                    side: 'left',
+                    duration: '1h',
+                    tags: ['终点', '夜游美食'],
+                    note: '晚上以小吃、文创和胡同夜景收尾。',
+                    details: '免费开放 · 人流较多 · 推荐错峰进入'
+                }
+            ],
+            segments: [
+                { text: '步行 10 分钟', x: 53, y: 72 },
+                { text: '中轴线游览 3h', x: 55, y: 53 },
+                { text: '步行上山 15 分钟', x: 53, y: 39 },
+                { text: '骑行/步行 18 分钟', x: 40, y: 31 },
+                { text: '胡同慢行 12 分钟', x: 50, y: 18 }
+            ],
+            timeline: [
+                { time: '09:00 - 12:30', title: '上午：城市中轴线开场', desc: '从天安门广场进入故宫，先看城市地标，再进入最核心的历史文化场景。' },
+                { time: '13:30 - 16:30', title: '下午：登高与湖景过渡', desc: '故宫北门出来后去景山公园俯瞰，再接北海公园放慢节奏。' },
+                { time: '17:00 - 20:30', title: '晚上：胡同与美食收尾', desc: '从什刹海一路走到南锣鼓巷，适合晚餐、夜景和轻社交。' }
+            ],
+            note: '路线途经重要地点：天安门广场、故宫、景山、北海、什刹海、南锣鼓巷。跟随路线游览不会漏掉核心中轴线精华。',
+            copy: '此条北京一日游路线总长度约 8.6km，适合第一次到北京、想快速理解城市中轴线与老城肌理的游客。上午优先安排天安门广场和故宫，保证预约景点的确定性；下午从景山公园俯瞰故宫全貌，再进入北海公园降低步行强度；傍晚以后转入什刹海和南锣鼓巷，用胡同、美食和夜景完成收尾。路线会结合体力、酒店位置、预约状态和交通节奏，帮助用户减少绕路和等待时间。'
         };
 
-        // Render daily plan
-        function renderDailyPlan() {
-            const container = document.getElementById('daily-plan');
-            let html = '';
-            routeData.dailyPlan.forEach(day => {
-                html += '<div class="route-day-card">';
-                html += '<h4><span class="timeline-dot">●</span>第' + day.day + '天 — ' + (day.date || '') + '</h4>';
-                if (day.theme) html += '<p style="color:#64748b;font-size:14px;margin:4px 0 12px">🎯 ' + day.theme + '</p>';
-                day.attractions.forEach(attr => {
-                    html += '<div class="attraction-item">';
-                    html += '<span class="attraction-num">' + attr.order + '</span>';
-                    html += '<div style="flex:1">';
-                    html += '<span class="attraction-name">' + attr.name + '</span>';
-                    if (attr.timeSlot) html += '<span style="font-size:12px;color:#94a3b8;margin-left:8px">' + attr.timeSlot + '</span>';
-                    if (attr.highlights) html += '<div style="font-size:12px;color:#64748b;margin-top:2px">✨ ' + attr.highlights + '</div>';
-                    html += '</div>';
-                    html += '<span class="attraction-hours">⏱ ' + (attr.estimatedHours || 2) + 'h</span>';
-                    html += '</div>';
+        function renderMetrics() {
+            document.getElementById('metric-grid').innerHTML = demoRoute.metrics.map(item => `
+                <div class="metric-card">
+                    <div class="metric-label">${item.label}</div>
+                    <div class="metric-value">${item.value}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderPins() {
+            document.getElementById('pins-layer').innerHTML = demoRoute.stops.map(stop => `
+                <button class="stop-pin ${stop.id === 1 ? 'start' : ''} ${stop.id === demoRoute.stops.length ? 'end' : ''}"
+                        style="left:${stop.x}%;top:${stop.y}%"
+                        data-stop="${stop.id}"
+                        aria-label="${stop.name}">
+                    ${stop.id}
+                </button>
+            `).join('');
+        }
+
+        function renderCards() {
+            const cards = demoRoute.stops.map(stop => `
+                <article class="guide-card ${stop.side}" style="left:${stop.cardX}%;top:${stop.cardY}%">
+                    <div class="poster">${stop.icon}</div>
+                    <h3>${stop.name} <span style="color:#ef4444">›</span></h3>
+                    <p>${stop.note}</p>
+                    <p><strong>${stop.duration}</strong> · ${stop.details}</p>
+                    <div class="tag-row">${stop.tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+                </article>
+            `).join('');
+            document.getElementById('cards-layer').innerHTML = cards;
+            document.getElementById('mobile-card-stack').innerHTML = cards;
+        }
+
+        function renderSegmentLabels() {
+            document.getElementById('labels-layer').innerHTML = demoRoute.segments.map(segment => `
+                <div class="segment-label" style="left:${segment.x}%;top:${segment.y}%">${segment.text}</div>
+            `).join('');
+        }
+
+        function renderTimeline() {
+            document.getElementById('timeline-panel').innerHTML = demoRoute.timeline.map(block => `
+                <div class="time-block">
+                    <strong>${block.time}</strong>
+                    <p><b>${block.title}</b><br>${block.desc}</p>
+                </div>
+            `).join('');
+        }
+
+        function bindInteractions() {
+            const pins = Array.from(document.querySelectorAll('.stop-pin'));
+            pins.forEach(pin => {
+                pin.addEventListener('click', () => {
+                    pins.forEach(item => item.classList.remove('active'));
+                    pin.classList.add('active');
+                    const stop = demoRoute.stops.find(item => item.id === Number(pin.dataset.stop));
+                    document.getElementById('route-note').textContent = `${stop.name}：${stop.note} ${stop.details}`;
                 });
-                if (day.meals && day.meals.length > 0) {
-                    html += '<div class="day-tip">🍽 ' + day.meals.join(' | ') + '</div>';
-                }
-                if (day.tips) {
-                    const tipsArr = Array.isArray(day.tips) ? day.tips : [day.tips];
-                    html += '<div class="day-tip">💡 ' + tipsArr.join(' | ') + '</div>';
-                }
-                if (day.transport) {
-                    html += '<div class="day-tip" style="background:#e6f7ff">🚗 ' + day.transport + '</div>';
-                }
-                html += '</div>';
             });
-            container.innerHTML = html;
         }
 
-        if (routeData.dailyPlan) renderDailyPlan();
-
-        function startTrip() {
-            localStorage.setItem('current_trip', JSON.stringify(routeData));
-            window.location.href = './trip.html';
+        function replayRoute() {
+            const path = document.getElementById('route-path');
+            path.style.animation = 'none';
+            path.getBoundingClientRect();
+            path.style.animation = 'drawRoute 1.8s ease forwards';
+            document.getElementById('route-note').textContent = demoRoute.note;
+            document.querySelectorAll('.stop-pin').forEach(pin => pin.classList.remove('active'));
         }
+
+        function renderDemo() {
+            renderMetrics();
+            renderPins();
+            renderCards();
+            renderSegmentLabels();
+            renderTimeline();
+            document.getElementById('route-note').textContent = demoRoute.note;
+            document.getElementById('route-copy').textContent = demoRoute.copy;
+            bindInteractions();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDemo();
+            document.getElementById('generate-demo').addEventListener('click', replayRoute);
+        });
     </script>
 </body>
 </html>
