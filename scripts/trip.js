@@ -473,12 +473,8 @@ function addMessage(content, type) {
 }
 
 function endTrip() {
-    if (!confirm('确定要结束本次行程吗？')) return;
     localStorage.removeItem('travel_current_trip');
-    tripState.currentIndex = 0;
-    tripState.startTime = new Date();
-    renderTrip();
-    addMessage('行程已重置为北京中轴线路线。', 'assistant');
+    window.location.href = './home.html';
 }
 
 function getCurrentStop() {
