@@ -373,6 +373,189 @@ app.post('/api/auth/logout', (req, res) => {
     res.json({ success: true, message: '登出成功' });
 });
 
+
+// ========== AI路线生成 (Prompt Engineering) ==========
+
+const DOUBAO_API_KEY = "ark-09cfb367-2c27-461a-9d4b-61c5b90d4d8f-00d37";
+const DOUBAO_API_URL = "https://ark.cn-beijing.volces.com/api/v3/responses";
+const DOUBAO_MODEL = "doubao-seed-2-0-pro-260215";
+
+// 同行人类型映射
+const companionMap = {
+    "solo": "独自一人",
+    "couple": "情侣出游",
+    "family": "亲子家庭",
+    "friends": "朋友结伴",
+    "elderly": "长辈同行"
+};
+
+// 兴趣标签映射
+const interestMap = {
+    "photo": "拍照打卡",
+    "food": "美食探索",
+    "culture": "人文历史",
+    "nature": "自然风光",
+    "shopping": "购物血拼",
+    "adventure": "户外探险",
+    "relax": "休闲度假"
+};
+
+// 强度映射
+const intensityMap = {
+    "relaxed": "低强度",
+    "moderate": "中强度",
+    "intensive": "高强度"
+};
+
+// 系统提示词
+function buildSystemPrompt() {
+    return `你是资深旅游规划师，擅长根据用户需求定制个性化旅行路线。
+请严格遵守以下规则：
+1. 完全基于用户给出的【出发地、目的地、兴趣标签、出行天数、游玩强度、同行人类型】生成路线
+2. 游玩强度严格匹配：低强度日均景点≤3，中强度日均≤4，高强度日均≤6，行程节奏符合要求
+3. 同行人适配：亲子路线需儿童友好，老人路线需低强度少步行，情侣路线需氛围感
+4. 景点必须真实存在，交通路线合理，每日行程不跨城市
+5. 每日行程按时间顺序排列，从上午到晚上
+6. 严格以JSON格式输出，字段完全匹配给定的Schema，不要输出任何解释文字、markdown格式、多余对话`;
+}
+
+// 用户提示词模板
+function buildUserPrompt(params) {
+    const interestsText = params.interests && params.interests.length > 0
+        ? params.interests.map(i => interestMap[i] || i).join('、')
+        : '未指定';
+    const intensityText = intensityMap[params.intensity] || '中强度';
+    const companionText = companionMap[params.companion] || '朋友结伴';
+
+    return `请根据以下参数生成旅游路线：
+出发地：${params.departure}
+目的地：${params.destination}
+兴趣标签：${interestsText}
+出行天数：${params.days}天
+游玩强度：${intensityText}
+同行人类型：${companionText}
+
+请严格按照以下JSON Schema输出：
+
+{
+  "destination": "${params.destination}",
+  "departure": "${params.departure}",
+  "days": ${params.days || 3},
+  "dailyPlan": [
+    {
+      "day": 1,
+      "date": "第1天日期",
+      "theme": "当日主题",
+      "attractions": [
+        {
+          "name": "景点名称",
+          "order": 1,
+          "timeSlot": "上午",
+          "estimatedHours": 2,
+          "highlights": "亮点描述",
+          "tips": "游玩提示"
+        }
+      ],
+      "meals": ["推荐餐厅或美食"],
+      "transport": "当日交通建议"
+    }
+  ],
+  "overview": {
+    "totalAttractions": 0,
+    "style": "路线风格",
+    "budgetEstimate": "预估人均预算（元）",
+    "bestSeason": "最佳游玩季节",
+    "notes": ["注意事项"]
+  }
+}`;
+}
+
+// AI路线生成
+app.post('/api/generate-route', async (req, res) => {
+    try {
+        const { departure, destination, days, intensity, interests, companion } = req.body;
+
+        if (!destination) {
+            return res.status(400).json({ success: false, message: '请输入目的地' });
+        }
+
+        const systemPrompt = buildSystemPrompt();
+        const userPrompt = buildUserPrompt({ departure, destination, days, intensity, interests, companion });
+
+        // 调用豆包API
+        const response = await fetch(DOUBAO_API_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${DOUBAO_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: DOUBAO_MODEL,
+                input: [
+                    {
+                        role: "system",
+                        content: [{ type: "input_text", text: systemPrompt }]
+                    },
+                    {
+                        role: "user",
+                        content: [{ type: "input_text", text: userPrompt }]
+                    }
+                ]
+            })
+        });
+
+        const aiResult = await response.json();
+
+        if (!response.ok) {
+            console.error('豆包API调用失败:', aiResult);
+            throw new Error(aiResult.error?.message || 'AI服务调用失败');
+        }
+
+        // 解析AI返回的JSON
+        let routeData;
+        try {
+            const aiText = aiResult.output?.[0]?.content?.[0]?.text || aiResult.choices?.[0]?.message?.content || '';
+            // 清理可能的markdown代码块标记
+            const cleanJson = aiText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            routeData = JSON.parse(cleanJson);
+        } catch (parseErr) {
+            console.error('解析AI返回JSON失败:', parseErr);
+            console.error('AI原始返回:', JSON.stringify(aiResult).substring(0, 500));
+            throw new Error('AI返回数据格式异常，请重试');
+        }
+
+        routeData.generated = true;
+        routeData.timestamp = new Date().toISOString();
+
+        // 保存到数据库
+        try {
+            const interestsStr = interests ? interests.join(',') : '';
+            await pool.query(
+                `INSERT INTO routes (title, description, departure_city, destination_city, days, budget_level, preference) 
+                 VALUES (// 启动服务器
+app.listen, $2, $3, $4, $5, $6, $7)`,
+                [
+                    `${routeData.destination}${routeData.days}日游`,
+                    routeData.overview?.style || `${routeData.departure}到${routeData.destination}的${routeData.days}日深度游`,
+                    departure || '',
+                    routeData.destination,
+                    String(routeData.days || days) + '天',
+                    routeData.overview?.budgetEstimate || '中等',
+                    interestsStr
+                ]
+            );
+        } catch (dbErr) {
+            console.error('保存路线到数据库失败:', dbErr.message);
+        }
+
+        res.json({ success: true, data: routeData });
+
+    } catch (err) {
+        console.error('生成路线失败:', err.message);
+        res.status(500).json({ success: false, message: err.message || '路线生成失败，请稍后重试' });
+    }
+});
+
 // 启动服务器
 app.listen(PORT, () => {
     console.log(`服务器运行在 http://localhost:${PORT}`);

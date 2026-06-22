@@ -177,16 +177,28 @@
             let html = '';
             routeData.dailyPlan.forEach(day => {
                 html += '<div class="route-day-card">';
-                html += '<h4><span class="timeline-dot">●</span>第' + day.day + '天 — ' + day.date + '</h4>';
+                html += '<h4><span class="timeline-dot">●</span>第' + day.day + '天 — ' + (day.date || '') + '</h4>';
+                if (day.theme) html += '<p style="color:#64748b;font-size:14px;margin:4px 0 12px">🎯 ' + day.theme + '</p>';
                 day.attractions.forEach(attr => {
                     html += '<div class="attraction-item">';
                     html += '<span class="attraction-num">' + attr.order + '</span>';
+                    html += '<div style="flex:1">';
                     html += '<span class="attraction-name">' + attr.name + '</span>';
-                    html += '<span class="attraction-hours">约' + attr.estimatedHours + '小时</span>';
+                    if (attr.timeSlot) html += '<span style="font-size:12px;color:#94a3b8;margin-left:8px">' + attr.timeSlot + '</span>';
+                    if (attr.highlights) html += '<div style="font-size:12px;color:#64748b;margin-top:2px">✨ ' + attr.highlights + '</div>';
+                    html += '</div>';
+                    html += '<span class="attraction-hours">⏱ ' + (attr.estimatedHours || 2) + 'h</span>';
                     html += '</div>';
                 });
-                if (day.tips && day.tips.length > 0) {
-                    html += '<div class="day-tip">💡 ' + day.tips.join(' | ') + '</div>';
+                if (day.meals && day.meals.length > 0) {
+                    html += '<div class="day-tip">🍽 ' + day.meals.join(' | ') + '</div>';
+                }
+                if (day.tips) {
+                    const tipsArr = Array.isArray(day.tips) ? day.tips : [day.tips];
+                    html += '<div class="day-tip">💡 ' + tipsArr.join(' | ') + '</div>';
+                }
+                if (day.transport) {
+                    html += '<div class="day-tip" style="background:#e6f7ff">🚗 ' + day.transport + '</div>';
                 }
                 html += '</div>';
             });

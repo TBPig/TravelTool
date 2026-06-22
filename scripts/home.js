@@ -266,63 +266,48 @@ ${result.data.description}
     }
 }
 
-// 生成路线建议
+// 生成路线建议（AI + 豆包大模型）
 async function generateRoute() {
     const departure = document.getElementById('departure').value.trim();
     const destination = document.getElementById('destination').value.trim();
     const days = document.getElementById('days').value;
-
-    // 获取游玩强度
     const intensity = document.getElementById('intensity').value;
-
-    // 获取兴趣标签（多选）
     const interests = getInterestsValues();
-
-    // 获取同行人类型
     const companion = document.getElementById('companion').value;
 
-    // 验证必填项
     if (!departure || !destination || !days) {
         showNotification('⚠️ 请填写出发城市、目的地和出行天数', 'warning');
         return;
     }
 
-    // 构建搜索参数
-    const searchParams = {
-        departure: departure,
-        destination: destination,
-        days: days,
-        intensity: intensity,
-        interests: interests,
-        companion: companion
-    };
-
-    // 自动保存用户画像
-    const profile = {
-        ...searchParams,
-        updatedAt: new Date().toISOString()
-    };
+    const profile = { departure, destination, days, intensity, interests, companion, updatedAt: new Date().toISOString() };
     localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile));
     updateProfileSummary(profile);
 
-    // 构建 URL 参数并跳转到推荐页
-    const params = new URLSearchParams();
-    params.append('departure', departure);
-    params.append('destination', destination);
-    params.append('days', days);
-    params.append('intensity', intensity);
-    params.append('companion', companion);
-    if (interests.length > 0) {
-        params.append('interests', interests.join(','));
+    showNotification('🤖 AI正在为您智能规划旅行路线...', 'info');
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/generate-route`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ departure, destination, days, intensity, interests, companion })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification('✅ 路线生成成功！', 'success');
+            setTimeout(() => {
+                const dataStr = encodeURIComponent(JSON.stringify(result.data));
+                window.location.href = `./route-map.html?data=${dataStr}`;
+            }, 800);
+        } else {
+            showNotification('❌ ' + (result.message || '路线生成失败'), 'error');
+        }
+    } catch (error) {
+        console.error('路线生成失败:', error);
+        showNotification('❌ 无法连接服务器，请确保后端服务已启动', 'error');
     }
-
-    // 显示加载提示
-    showNotification('🎯 正在为您生成路线推荐...', 'info');
-
-    // 跳转到推荐页面
-    setTimeout(() => {
-        window.location.href = `./recommend.html?${params}`;
-    }, 500);
 }
 
 // 页面加载时检查登录状态
