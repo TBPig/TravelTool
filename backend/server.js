@@ -482,41 +482,50 @@ app.post('/api/generate-route', async (req, res) => {
         const systemPrompt = buildSystemPrompt();
         const userPrompt = buildUserPrompt({ departure, destination, days, intensity, interests, companion });
 
-        // 调用豆包API
-        const response = await fetch(DOUBAO_API_URL, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${DOUBAO_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: DOUBAO_MODEL,
-                max_tokens: 4096,
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    { role: "user", content: userPrompt }
-                ]
-            })
-        });
-
-        const aiResult = await response.json();
-
-        if (!response.ok) {
-            console.error('豆包API调用失败:', aiResult);
-            throw new Error(aiResult.error?.message || 'AI服务调用失败');
-        }
-
-        // 解析AI返回的JSON
+        // 调用豆包API（带超时控制）
         let routeData;
+        let aiSucceeded = false;
+
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000); // 8秒超时
+
+            const response = await fetch(DOUBAO_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${DOUBAO_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: DOUBAO_MODEL,
+                    max_tokens: 4096,
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: userPrompt }
+                    ]
+                }),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            const aiResult = await response.json();
+
+            if (!response.ok) {
+                console.error('豆包API调用失败:', aiResult);
+                throw new Error(aiResult.error?.message || 'AI服务调用失败');
+            }
+
             const aiText = aiResult.output?.[0]?.content?.[0]?.text || aiResult.choices?.[0]?.message?.content || '';
-            // 清理可能的markdown代码块标记
             const cleanJson = aiText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
             routeData = JSON.parse(cleanJson);
-        } catch (parseErr) {
-            console.error('解析AI返回JSON失败:', parseErr);
-            console.error('AI原始返回:', JSON.stringify(aiResult).substring(0, 500));
-            throw new Error('AI返回数据格式异常，请重试');
+            aiSucceeded = true;
+        } catch (aiErr) {
+            console.error('AI调用失败，使用数据库兜底方案:', aiErr.message);
+        }
+
+        // AI失败时使用数据库兜底方案
+        if (!aiSucceeded) {
+            routeData = await generateFallbackRoute({ departure, destination, days: parseInt(days) || 3, intensity, interests, companion });
         }
 
         routeData.generated = true;
@@ -526,12 +535,11 @@ app.post('/api/generate-route', async (req, res) => {
         try {
             const interestsStr = interests ? interests.join(',') : '';
             await pool.query(
-                `INSERT INTO routes (title, description, departure_city, destination_city, days, budget_level, preference) 
-                 VALUES (// 启动服务器
-app.listen, $2, $3, $4, $5, $6, $7)`,
+                `INSERT INTO routes (title, description, departure_city, destination_city, days, budget_level, preference)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
                 [
                     `${routeData.destination}${routeData.days}日游`,
-                    routeData.overview?.style || `${routeData.departure}到${routeData.destination}的${routeData.days}日深度游`,
+                    routeData.overview?.style || `${routeData.departure || departure}到${routeData.destination}的${routeData.days}日深度游`,
                     departure || '',
                     routeData.destination,
                     String(routeData.days || days) + '天',
@@ -550,6 +558,90 @@ app.listen, $2, $3, $4, $5, $6, $7)`,
         res.status(500).json({ success: false, message: err.message || '路线生成失败，请稍后重试' });
     }
 });
+
+// AI调用失败时的兜底方案：从数据库现有景点生成路线
+async function generateFallbackRoute(params) {
+    const { departure, destination, days, intensity, interests, companion } = params;
+    const numDays = Math.min(Math.max(days || 3, 1), 7);
+
+    // 查询目的地的景点
+    const result = await pool.query(
+        `SELECT * FROM attractions WHERE city ILIKE $1 ORDER BY rating DESC`,
+        [`%${destination}%`]
+    );
+    let attractions = result.rows;
+
+    // 如果没有完全匹配的景点，按类型标签筛选
+    if (attractions.length === 0 && interests && interests.length > 0) {
+        const typeResult = await pool.query(
+            `SELECT * FROM attractions WHERE type = ANY($1) ORDER BY rating DESC`,
+            [interests]
+        );
+        attractions = typeResult.rows;
+    }
+
+    // 如果还是没有景点，创建一些通用景点
+    if (attractions.length === 0) {
+        attractions = [
+            { id: 1, name: `${destination}市中心广场`, type: 'scenic', description: `${destination}的地标中心`, rating: '4.3', recommended_duration: 60 },
+            { id: 2, name: `${destination}文化博物馆`, type: 'culture', description: `了解${destination}历史文化的好去处`, rating: '4.5', recommended_duration: 120 },
+            { id: 3, name: `${destination}美食街`, type: 'food', description: `品尝${destination}特色美食`, rating: '4.4', recommended_duration: 90 },
+            { id: 4, name: `${destination}公园`, type: 'nature', description: `${destination}市区休闲公园`, rating: '4.2', recommended_duration: 60 },
+        ];
+    }
+
+    // 按强度分配每天景点数
+    const intensityMap = { relaxed: 2, moderate: 3, intensive: 5 };
+    const perDay = intensityMap[intensity] || 3;
+    const themes = ['文化探索', '自然风光', '休闲漫步', '深度体验', '美食之旅', '城市观光', '人文之旅'];
+    const timeSlots = ['上午', '下午', '晚上'];
+
+    // 构建 dailyPlan（每天至少1个景点，如果不够则循环使用）
+    const dailyPlan = [];
+    for (let d = 1; d <= numDays; d++) {
+        const dayAttractions = [];
+        for (let a = 0; a < perDay; a++) {
+            const idx = (d - 1) * perDay + a;
+            const attr = attractions[idx % attractions.length];
+            dayAttractions.push({
+                name: attr.name,
+                order: a + 1,
+                timeSlot: timeSlots[a % 3],
+                estimatedHours: Math.ceil((attr.recommended_duration || 60) / 60),
+                highlights: attr.description || `${attr.name}精彩体验`,
+                tips: `建议游玩${Math.ceil((attr.recommended_duration || 60) / 60)}小时`
+            });
+        }
+        dailyPlan.push({
+            day: d,
+            date: `第${d}天`,
+            theme: themes[(d - 1) % themes.length],
+            attractions: dayAttractions,
+            meals: [`当地特色餐厅`, `风味小吃街`],
+            transport: d === 1 ? `从${departure || '出发地'}前往${destination}` : `市内交通`
+        });
+    }
+
+    // 去重统计实际不同景点数
+    const uniqueNames = new Set(attractions.map(a => a.name));
+    const totalAttractions = Math.min(numDays * perDay, uniqueNames.size);
+
+    return {
+        destination: destination,
+        departure: departure || '未知',
+        days: numDays,
+        totalAttractions: totalAttractions,
+        destinationCoords: { lat: 39.9042, lng: 116.4074 },
+        dailyPlan: dailyPlan,
+        overview: {
+            totalAttractions: totalAttractions,
+            style: `${destination}${numDays}日${['休闲游', '经典游', '深度游'][Math.min(numDays, 3) - 1]}`,
+            budgetEstimate: ['经济型', '中等', '舒适型'][Math.min(numDays, 3) - 1],
+            bestSeason: '全年皆宜',
+            notes: ['建议提前预订酒店', '注意查看当地天气', '准备好舒适的运动鞋']
+        }
+    };
+}
 
 // 启动服务器
 app.listen(PORT, () => {

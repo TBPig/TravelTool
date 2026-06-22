@@ -266,8 +266,8 @@ ${result.data.description}
     }
 }
 
-// 生成路线建议（AI + 豆包大模型）
-async function generateRoute() {
+// 生成路线建议（跳转至进度页面）
+function generateRoute() {
     const departure = document.getElementById('departure').value.trim();
     const destination = document.getElementById('destination').value.trim();
     const days = document.getElementById('days').value;
@@ -284,30 +284,7 @@ async function generateRoute() {
     localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile));
     updateProfileSummary(profile);
 
-    showNotification('🤖 AI正在为您智能规划旅行路线...', 'info');
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/generate-route`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ departure, destination, days, intensity, interests, companion })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showNotification('✅ 路线生成成功！', 'success');
-            setTimeout(() => {
-                const dataStr = encodeURIComponent(JSON.stringify(result.data));
-                window.location.href = `./route-map.html?data=${dataStr}`;
-            }, 800);
-        } else {
-            showNotification('❌ ' + (result.message || '路线生成失败'), 'error');
-        }
-    } catch (error) {
-        console.error('路线生成失败:', error);
-        showNotification('❌ 无法连接服务器，请确保后端服务已启动', 'error');
-    }
+    window.location.href = './loading.html';
 }
 
 // 页面加载时检查登录状态

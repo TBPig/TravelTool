@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>正在规划路线 - 旅行路线助手</title>
+    <link href="../styles/agency.css" rel="stylesheet" />
+    <link href="../styles/styles.css" rel="stylesheet" />
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/auth.js"></script>
+    <script src="../scripts/header.js" defer></script>
+    <script src="../scripts/sidebar.js" defer></script>
+    <script src="../scripts/agency-nav.js" defer></script>
+    <style>
+        .loading-section {
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .loading-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 3rem 2.5rem;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .loading-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 1.5rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffc800, #ff9500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-glow 1.5s ease-in-out infinite;
+        }
+        .loading-icon svg {
+            width: 36px;
+            height: 36px;
+            fill: #212529;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,200,0,0.4); transform: scale(1); }
+            50% { box-shadow: 0 0 0 16px rgba(255,200,0,0); transform: scale(1.05); }
+        }
+        .loading-card h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 0.5rem;
+        }
+        .loading-card .subtitle {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background: #f0f0f0;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ffc800, #ff9500);
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+        .progress-bar.active {
+            animation: progress-stripes 1s linear infinite;
+        }
+        .status-text {
+            font-size: 0.95rem;
+            color: #495057;
+            min-height: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        .status-detail {
+            font-size: 0.8rem;
+            color: #adb5bd;
+            min-height: 1.2rem;
+        }
+        .result-error {
+            display: none;
+        }
+        .result-error.show {
+            display: block;
+        }
+        .result-error .error-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            background: #f8d7da;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @keyframes dots { 0%,20% { opacity: 0; } 50% { opacity: 1; } 80%,100% { opacity: 0; } }
+        .dots span { animation: dots 1.4s infinite; }
+        .dots span:nth-child(2) { animation-delay: 0.2s; }
+        .dots span:nth-child(3) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body id="page-top">
+    <header id="header-container"></header>
+    <aside id="sidebar-container"></aside>
+
+    <section class="page-section loading-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    <div class="loading-card" id="loading-card">
+                        <!-- Loading State -->
+                        <div id="loading-state">
+                            <div class="loading-icon">
+                                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                            </div>
+                            <h2>正在为您规划旅行路线</h2>
+                            <p class="subtitle">AI 智能引擎正在分析最佳方案<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
+                            <div class="progress">
+                                <div class="progress-bar" id="progress-bar" role="progressbar"></div>
+                            </div>
+                            <p class="status-text" id="status-text">正在连接服务器...</p>
+                            <p class="status-detail" id="status-detail">请稍候，这通常只需要几秒钟</p>
+                        </div>
+
+                        <!-- Error State -->
+                        <div class="result-error" id="error-state">
+                            <div class="error-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="#dc3545"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                            </div>
+                            <h2>路线生成失败</h2>
+                            <p class="status-text" id="error-message">无法获取路线方案，请重试</p>
+                            <div class="mt-4 d-flex gap-2 justify-content-center">
+                                <button class="btn btn-warning px-4" onclick="retryGenerate()">重新生成</button>
+                                <a href="./home.html" class="btn btn-outline-secondary px-4">返回修改</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const STATUS = {
+            CONNECTING: { progress: 15, text: '正在连接服务器...', detail: '请稍候，这通常只需要几秒钟' },
+            ANALYZING:  { progress: 35, text: 'AI 正在分析您的旅行偏好...', detail: '根据您的目的地、兴趣和天数定制方案' },
+            PLANNING:   { progress: 55, text: '正在规划每日行程...', detail: '合理安排景点顺序和游玩时间' },
+            OPTIMIZING: { progress: 75, text: '正在优化路线细节...', detail: '平衡游玩强度和体验质量' },
+            FINALIZING: { progress: 90, text: '正在生成最终方案...', detail: '整理路线信息和出行建议' },
+            COMPLETE:   { progress: 100, text: '路线生成完成！', detail: '即将跳转至路线详情页' }
+        };
+
+        let retryCount = 0;
+        const MAX_RETRIES = 2;
+
+        function updateProgress(phase) {
+            const s = STATUS[phase];
+            if (!s) return;
+            document.getElementById('progress-bar').style.width = s.progress + '%';
+            document.getElementById('status-text').textContent = s.text;
+            document.getElementById('status-detail').textContent = s.detail;
+        }
+
+        function showError(message) {
+            document.getElementById('loading-state').style.display = 'none';
+            const errEl = document.getElementById('error-state');
+            errEl.classList.add('show');
+            errEl.style.display = 'block';
+            document.getElementById('error-message').textContent = message || '无法获取路线方案，请重试';
+        }
+
+        async function callApi() {
+            const profile = JSON.parse(localStorage.getItem('travel_user_profile') || '{}');
+            if (!profile.destination) {
+                showError('未找到旅行信息，请返回首页重新填写');
+                return;
+            }
+
+            const steps = ['CONNECTING', 'ANALYZING', 'PLANNING', 'OPTIMIZING', 'FINALIZING'];
+            let stepIndex = 0;
+
+            const advanceProgress = () => {
+                if (stepIndex < steps.length) {
+                    updateProgress(steps[stepIndex++]);
+                }
+            };
+
+            // 启动进度动画
+            advanceProgress();
+            const progressTimer = setInterval(() => {
+                if (stepIndex < steps.length - 1) {
+                    advanceProgress();
+                }
+            }, 3000);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/generate-route`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        departure: profile.departure,
+                        destination: profile.destination,
+                        days: profile.days,
+                        intensity: profile.intensity,
+                        interests: profile.interests,
+                        companion: profile.companion
+                    })
+                });
+
+                const result = await response.json();
+
+                clearInterval(progressTimer);
+                updateProgress('COMPLETE');
+
+                if (result.success) {
+                    setTimeout(() => {
+                        const dataStr = encodeURIComponent(JSON.stringify(result.data));
+                        window.location.href = `./route-map.html?data=${dataStr}`;
+                    }, 600);
+                } else {
+                    showError(result.message || '路线生成失败');
+                }
+            } catch (error) {
+                clearInterval(progressTimer);
+                console.error('路线生成失败:', error);
+                showError('无法连接服务器，请确保后端服务已启动');
+            }
+        }
+
+        async function retryGenerate() {
+            document.getElementById('error-state').classList.remove('show');
+            document.getElementById('error-state').style.display = 'none';
+            document.getElementById('loading-state').style.display = 'block';
+            document.getElementById('progress-bar').style.width = '0%';
+
+            retryCount++;
+            await callApi();
+        }
+
+        // 页面加载后自动开始
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(callApi, 500);
+        });
+    </script>
+</body>
+</html>
