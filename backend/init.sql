@@ -16,8 +16,8 @@ TRUNCATE TABLE attractions CASCADE;
 
 -- 创建路线表
 CREATE TABLE IF NOT EXISTS routes (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
+                                      id SERIAL PRIMARY KEY,
+                                      title VARCHAR(255) NOT NULL,
     description TEXT,
     departure_city VARCHAR(100),
     destination_city VARCHAR(100),
@@ -64,13 +64,15 @@ CREATE TABLE IF NOT EXISTS route_attractions (
 INSERT INTO routes (id, title, description, departure_city, destination_city, days, budget_level, preference, image_url) VALUES
 (1, '云南经典7日游', '昆明 → 大理 → 丽江 → 香格里拉，体验云南多元文化与绝美风景', '昆明', '香格里拉', 7, '中等', 'nature,culture', 'https://picsum.photos/400/250?random=1'),
 (2, '川西秘境环线', '成都 → 四姑娘山 → 丹巴 → 新都桥 → 稻城亚丁，探索川西高原', '成都', '稻城', 10, '较高', 'adventure,nature', 'https://picsum.photos/400/250?random=2'),
-(3, '江南水乡慢游', '苏州 → 乌镇 → 杭州 → 绍兴，感受江南烟雨与古镇风情', '苏州', '绍兴', 5, '中等', 'relax,culture', 'https://picsum.photos/400/250?random=3')
-ON CONFLICT (id) DO NOTHING;
+(3, '江南水乡慢游', '苏州 → 乌镇 → 杭州 → 绍兴，感受江南烟雨与古镇风情', '苏州', '绍兴', 5, '中等', 'relax,culture', 'https://picsum.photos/400/250?random=3'),
+(4, '北京皇家大观与现代京韵4日游', '天安门 → 故宫 → 颐和园 → 长城 → 798艺术区，穿梭古今北京', '北京', '北京', 4, '中等', 'culture,scenic', 'https://picsum.photos/400/250?random=4'),
+(5, '厦门鼓浪屿文艺海岛慢度周末', '环岛路 → 鼓浪屿 → 曾厝垵 → 厦门大学，享受闽南海风与文艺气息', '厦门', '厦门', 3, '经济', 'relax,food', 'https://picsum.photos/400/250?random=5')
+    ON CONFLICT (id) DO NOTHING;
 
 -- 创建用户表
 CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
+                                     id SERIAL PRIMARY KEY,
+                                     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     nickname VARCHAR(50),
@@ -78,7 +80,7 @@ CREATE TABLE IF NOT EXISTS users (
     phone VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+    );
 
 -- 插入示例景点数据（带完整字段，使用 ON CONFLICT 防止重复插入）
 INSERT INTO attractions (id, name, description, city, type, address, rating, price, recommended_duration, image_url, tags, open_time, best_visit_time, suitable_for_family, suitable_for_elderly, suitable_for_couple) VALUES
@@ -96,5 +98,13 @@ INSERT INTO attractions (id, name, description, city, type, address, rating, pri
 (12, '狮子山', '俯瞰丽江古城全景', '丽江', 'scenic', '丽江古城内', 4.1, 15, 60, 'https://picsum.photos/400/250?random=21', 'scenic,view,photo', '08:00-19:00', '傍晚', true, false, true),
 (13, '四方街', '丽江古城中心，美食购物', '丽江', 'food', '丽江古城中心', 4.3, 0, 90, 'https://picsum.photos/400/250?random=22', 'food,shopping,nightlife', '全天开放', '夜晚', true, true, true),
 (14, '茶马古道', '体验古代商贸通道', '丽江', 'adventure', '丽江市周边', 4.0, 200, 360, 'https://picsum.photos/400/250?random=23', 'adventure,history,outdoor', '08:00-18:00', '全天', true, false, true),
-(15, '玉水寨', '纳西族东巴文化圣地', '丽江', 'culture', '丽江市玉龙纳西族自治县', 4.2, 35, 90, 'https://picsum.photos/400/250?random=24', 'culture,temple,scenic', '08:00-18:00', '上午', true, true, true)
+(15, '玉水寨', '纳西族东巴文化圣地', '丽江', 'culture', '丽江市玉龙纳西族自治县', 4.2, 35, 90, 'https://picsum.photos/400/250?random=24', 'culture,temple,scenic', '08:00-18:00', '上午', true, true, true),
+(16, '西湖', '杭州标志性景观，三潭印月与断桥残雪闻名遐迩', '杭州', 'nature', '杭州市西湖区孤山路1号', 4.9, 0, 180, 'https://picsum.photos/400/250?random=25', 'nature,scenic,lake,photo', '全天开放', '日落', true, true, true),
+(17, '乌镇西栅', '保存完好的江南水乡古镇，夜景极具魅力', '嘉兴', 'culture', '桐乡市乌镇石佛南路18号', 4.7, 150, 240, 'https://picsum.photos/400/250?random=26', 'culture,history,ancient,nightlife', '09:00-22:00', '夜晚', true, true, true),
+(18, '拙政园', '中国四大名园之一，江南古典园林的经典之作', '苏州', 'culture', '苏州市姑苏区东北街178号', 4.6, 80, 120, 'https://picsum.photos/400/250?random=27', 'culture,history,garden', '07:30-17:30', '上午', true, true, true),
+(19, '宽窄巷子', '成都清朝古街道，体验地道成都慢生活与四川小吃', '成都', 'food', '成都市青羊区长顺街', 4.4, 0, 120, 'https://picsum.photos/400/250?random=28', 'food,culture,shopping', '全天开放', '下午', true, true, true),
+(20, '稻城亚丁', '“水蓝色星球上的最后一片净土”，三座神山巍峨壮丽', '甘孜', 'nature', '甘孜藏族自治州稻城县香格里拉镇', 4.9, 146, 480, 'https://picsum.photos/400/250?random=29', 'nature,mountain,adventure,scenic', '08:20-16:40', '全天', false, false, true),
+(21, '故宫博物院', '明清两代皇家宫殿，绝无仅有的历史文化宝库', '北京', 'culture', '北京市东城区景山前街4号', 4.9, 60, 240, 'https://picsum.photos/400/250?random=30', 'culture,history,museum', '08:30-17:00', '上午', true, true, true),
+(22, '颐和园', '保存最完整的皇家行宫御苑，被誉为皇家园林博物馆', '北京', 'scenic', '北京市海淀区新建宫门路19号', 4.8, 30, 180, 'https://picsum.photos/400/250?random=31', 'scenic,history,lake,park', '06:00-20:00', '下午', true, true, true),
+(23, '鼓浪屿', '世界文化遗产，充满异国情调与闽南风情的文艺琴岛', '厦门', 'relax', '厦门市思明区鼓浪屿', 4.6, 35, 360, 'https://picsum.photos/400/250?random=32', 'relax,scenic,beach,art', '全天开放', '全天', true, true, true),
 ON CONFLICT (id) DO NOTHING;
