@@ -1,4 +1,4 @@
-// 用户画像存储键名
+﻿// 用户画像存储键名
 const USER_PROFILE_KEY = 'travel_user_profile';
 
 // 获取路线列表

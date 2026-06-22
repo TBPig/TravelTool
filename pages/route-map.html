@@ -1,0 +1,204 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>AI路线规划 - 旅行路线助手</title>
+    <link href="../styles/agency.css" rel="stylesheet" />
+    <link href="../styles/styles.css" rel="stylesheet" />
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/auth.js"></script>
+    <script src="../scripts/header.js" defer></script>
+    <script src="../scripts/sidebar.js" defer></script>
+    <script src="../scripts/agency-nav.js" defer></script>
+    <style>
+        #map-container { width: 100%; height: 500px; border-radius: 12px; overflow: hidden; }
+        .route-day-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .route-day-card h4 {
+            font-family: "Montserrat", "Microsoft YaHei", sans-serif;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 12px;
+        }
+        .attraction-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        .attraction-item:last-child { border-bottom: none; }
+        .attraction-num {
+            width: 28px; height: 28px;
+            background: #ffc800;
+            color: #212529;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .attraction-name { font-weight: 600; color: #334155; }
+        .attraction-hours { font-size: 12px; color: #94a3b8; margin-left: auto; }
+        .day-tip { font-size: 13px; color: #64748b; margin-top: 8px; padding: 8px 12px; background: #fffbeb; border-radius: 8px; }
+        .timeline-dot { color: #ffc800; margin-right: 6px; }
+        .section-divider {
+            border-top: 2px solid #ffc800;
+            width: 60px;
+            margin: 8px 0 20px;
+        }
+    </style>
+</head>
+<body id="page-top">
+    <header id="header-container"></header>
+    <aside id="sidebar-container"></aside>
+
+    <!-- Route Header -->
+    <section class="status-bar">
+        <div class="container">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+                <div>
+                    <h1 style="font-size:1.4rem;margin:0;text-transform:uppercase;font-weight:800" id="route-title">AI路线规划</h1>
+                    <p style="margin:4px 0 0;opacity:0.7;font-size:0.85rem" id="route-subtitle">正在生成...</p>
+                </div>
+                <div style="display:flex;gap:10px">
+                    <button class="btn btn-outline-light btn-sm text-uppercase" onclick="window.history.back()">返回修改</button>
+                    <button class="btn btn-warning btn-sm text-uppercase" onclick="startTrip()" style="background:#ffc800;border-color:#ffc800;color:#212529">开始出行</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="page-section" style="padding:2rem 0">
+        <div class="container">
+            <h2 class="section-heading">路线地图</h2>
+            <h3 class="section-subheading">景点分布与行程概览</h3>
+            <div id="map-container"></div>
+        </div>
+    </section>
+
+    <!-- Daily Plan -->
+    <section class="page-section bg-light">
+        <div class="container">
+            <h2 class="section-heading">每日行程</h2>
+            <h3 class="section-subheading">AI为您定制的旅行计划</h3>
+            <div id="daily-plan"></div>
+        </div>
+    </section>
+
+    <script src="https://map.qq.com/api/gljs?v=1.exp&key=5NWBZ-EOMKG-MTYQI-QD4EH-V3NYO-E5FA4"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const routeData = JSON.parse(decodeURIComponent(params.get('data') || '{}'));
+
+        document.getElementById('route-title').textContent = routeData.destination + ' ' + routeData.days + '日游';
+        document.getElementById('route-subtitle').textContent = routeData.departure + ' → ' + routeData.destination + ' | ' + routeData.totalAttractions + '个景点';
+
+        // Init map
+        let map;
+        function initMap() {
+            const coords = routeData.destinationCoords || { lat: 39.9042, lng: 116.4074 };
+            map = new TMap.Map('map-container', {
+                center: new TMap.LatLng(coords.lat, coords.lng),
+                zoom: 13,
+                viewMode: '2D'
+            });
+
+            // Add markers for all attractions
+            const markers = [];
+            routeData.dailyPlan.forEach((day, di) => {
+                day.attractions.forEach((attr, ai) => {
+                    const label = String.fromCharCode(65 + di) + (ai + 1);
+                    markers.push({
+                        position: new TMap.LatLng(
+                            coords.lat + (Math.random() - 0.5) * 0.05,
+                            coords.lng + (Math.random() - 0.5) * 0.05
+                        ),
+                        title: attr.name,
+                        label: label
+                    });
+                });
+            });
+
+            if (markers.length > 0 && window.TMap) {
+                new TMap.MultiMarker({
+                    map: map,
+                    styles: {
+                        default: new TMap.MarkerStyle({
+                            width: 32, height: 32,
+                            anchor: { x: 16, y: 32 },
+                            src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40"><path d="M16 0C7.2 0 0 7.2 0 16c0 12 16 24 16 24s16-12 16-24C32 7.2 24.8 0 16 0z" fill="#ffc800" stroke="#212529" stroke-width="2"/><circle cx="16" cy="14" r="6" fill="#212529"/></svg>')
+                        })
+                    },
+                    geometries: markers.map(m => ({
+                        id: m.label,
+                        styleId: 'default',
+                        position: m.position,
+                        properties: { title: m.title }
+                    }))
+                });
+
+                // InfoWindow
+                markers.forEach(m => {
+                    const infoWin = new TMap.InfoWindow({
+                        map: map,
+                        position: m.position,
+                        content: '<div style="padding:8px 12px;font-weight:600">' + m.title + '</div>',
+                        enableCustom: true
+                    });
+                    infoWin.close();
+                });
+            }
+        }
+
+        window.onload = function() {
+            if (typeof TMap !== 'undefined') {
+                initMap();
+            } else {
+                setTimeout(function() {
+                    if (typeof TMap !== 'undefined') initMap();
+                }, 1000);
+            }
+        };
+
+        // Render daily plan
+        function renderDailyPlan() {
+            const container = document.getElementById('daily-plan');
+            let html = '';
+            routeData.dailyPlan.forEach(day => {
+                html += '<div class="route-day-card">';
+                html += '<h4><span class="timeline-dot">●</span>第' + day.day + '天 — ' + day.date + '</h4>';
+                day.attractions.forEach(attr => {
+                    html += '<div class="attraction-item">';
+                    html += '<span class="attraction-num">' + attr.order + '</span>';
+                    html += '<span class="attraction-name">' + attr.name + '</span>';
+                    html += '<span class="attraction-hours">约' + attr.estimatedHours + '小时</span>';
+                    html += '</div>';
+                });
+                if (day.tips && day.tips.length > 0) {
+                    html += '<div class="day-tip">💡 ' + day.tips.join(' | ') + '</div>';
+                }
+                html += '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        if (routeData.dailyPlan) renderDailyPlan();
+
+        function startTrip() {
+            localStorage.setItem('current_trip', JSON.stringify(routeData));
+            window.location.href = './trip.html';
+        }
+    </script>
+</body>
+</html>
