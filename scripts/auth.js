@@ -4,6 +4,7 @@
 async function checkUserLogin() {
     const token = localStorage.getItem('token');
     const userActions = document.getElementById('user-actions');
+    if (!userActions) return;
 
     if (!token) {
         // 未登录状态

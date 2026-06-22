@@ -1,649 +1,503 @@
-// 行中助手页逻辑
-
-// 当前行程状态
-let tripState = {
-    itinerary: null,
-    attractions: [],
-    params: null,
-    startTime: null,
-    currentDay: 1,
-    currentAttractionIndex: 0,
-    attractionStatus: 'pending', // pending, arrived, visiting, completed
-    visitStartTime: null,
-    timerInterval: null,
-    visitTimerInterval: null
+const demoTrip = {
+    destination: '北京',
+    startTime: new Date().toISOString(),
+    stops: [
+        {
+            id: 1,
+            time: '09:00',
+            name: '天安门广场',
+            duration: '45 分钟',
+            note: '从北京中轴线南段出发，广场视野开阔，适合作为一天行程的开场。',
+            eta: '步行 10 分钟',
+            distance: '0.8 km',
+            ticket: '免费',
+            openTime: '全天开放，升旗需提前查询时间',
+            photo: '人民英雄纪念碑东侧、广场中轴线取景',
+            food: '前门大街可补早餐和咖啡',
+            restroom: '广场周边安检区外公共卫生间',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/200401-beijing-tianan-square-overview.jpg/960px-200401-beijing-tianan-square-overview.jpg',
+            lat: 39.9055,
+            lng: 116.3914
+        },
+        {
+            id: 2,
+            time: '10:00',
+            name: '故宫博物院',
+            duration: '2.5 小时',
+            note: '沿午门进入宫城，依次游览太和殿、中和殿、保和殿，也可按兴趣加入珍宝馆或钟表馆。',
+            eta: '步行 8 分钟',
+            distance: '0.6 km',
+            ticket: '旺季 60 元，淡季 40 元，需预约',
+            openTime: '通常 08:30-17:00，周一闭馆',
+            photo: '太和殿广场、角楼、神武门外',
+            food: '故宫内轻食为主，午餐建议放到景山或什刹海附近',
+            restroom: '午门、太和门、御花园附近均有卫生间',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Forbidden_city_06.jpg/960px-Forbidden_city_06.jpg',
+            lat: 39.9163,
+            lng: 116.3972
+        },
+        {
+            id: 3,
+            time: '13:30',
+            name: '景山公园',
+            duration: '1 小时',
+            note: '登万春亭俯瞰故宫全景，是路线里的高光视角。',
+            eta: '步行 12 分钟',
+            distance: '0.9 km',
+            ticket: '约 2 元',
+            openTime: '06:00-21:00 左右，季节会调整',
+            photo: '万春亭向南拍故宫全景',
+            food: '景山东门外有简餐，建议轻量补给',
+            restroom: '公园东西门和主路附近',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Jingshan_park.jpg/960px-Jingshan_park.jpg',
+            lat: 39.9236,
+            lng: 116.3979
+        },
+        {
+            id: 4,
+            time: '15:00',
+            name: '北海公园',
+            duration: '1.5 小时',
+            note: '加入湖面和皇家园林场景，让行程从文化参观切到休闲漫步。',
+            eta: '骑行 9 分钟',
+            distance: '1.4 km',
+            ticket: '约 10 元，联票另计',
+            openTime: '06:30-20:00 左右',
+            photo: '白塔、九龙壁、湖边步道',
+            food: '北海北门外可衔接什刹海餐饮',
+            restroom: '南门、北门、白塔附近',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Beihai_park%2C_beijing%2C_china.jpg/960px-Beihai_park%2C_beijing%2C_china.jpg',
+            lat: 39.9242,
+            lng: 116.3857
+        },
+        {
+            id: 5,
+            time: '17:00',
+            name: '什刹海',
+            duration: '1 小时',
+            note: '傍晚沿湖散步，银锭桥和后海水岸适合慢游，也方便安排晚餐。',
+            eta: '步行 15 分钟',
+            distance: '1.2 km',
+            ticket: '街区免费，游船另计',
+            openTime: '全天开放，夜景更适合展示',
+            photo: '银锭桥、后海水岸、胡同口',
+            food: '烤肉季、爆肚、糖葫芦、咖啡酒吧',
+            restroom: '银锭桥和荷花市场附近',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Beijing_Shichahai.jpg/960px-Beijing_Shichahai.jpg',
+            lat: 39.9372,
+            lng: 116.3863
+        },
+        {
+            id: 6,
+            time: '19:00',
+            name: '南锣鼓巷',
+            duration: '1 小时',
+            note: '胡同街区适合轻松收尾，可以逛小店、吃小吃，也能从支巷感受老北京街巷尺度。',
+            eta: '步行 11 分钟',
+            distance: '1.0 km',
+            ticket: '免费',
+            openTime: '街区全天，店铺多为 10:00-22:00',
+            photo: '主街牌楼、胡同支巷、特色门脸',
+            food: '文宇奶酪、炸酱面、小吃和伴手礼店',
+            restroom: '主街游客服务点附近',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Beijing_Nanluoguxiang_%E5%8D%97%E9%94%A3%E9%BC%93%E5%B7%B7_-_panoramio.jpg/960px-Beijing_Nanluoguxiang_%E5%8D%97%E9%94%A3%E9%BC%93%E5%B7%B7_-_panoramio.jpg',
+            lat: 39.9362,
+            lng: 116.4032
+        }
+    ]
 };
 
-// 页面加载时初始化
+const mapLandmarks = [
+    { name: '人民大会堂', icon: '🏛', lat: 39.9049, lng: 116.3866 },
+    { name: '国家博物馆', icon: '🏛', lat: 39.9048, lng: 116.4014 },
+    { name: '午门', icon: '🚪', lat: 39.9112, lng: 116.3972 },
+    { name: '太和殿', icon: '🏯', lat: 39.9175, lng: 116.3972 },
+    { name: '神武门', icon: '🚪', lat: 39.9240, lng: 116.3972 },
+    { name: '白塔', icon: '🗼', lat: 39.9257, lng: 116.3864 },
+    { name: '银锭桥', icon: '🌉', lat: 39.9380, lng: 116.3885 },
+    { name: '鼓楼', icon: '🥁', lat: 39.9405, lng: 116.3956 }
+];
+
+const mapConfig = {
+    centerLat: 39.9225,
+    centerLng: 116.3942,
+    zoom: 14,
+    tileSize: 256
+};
+
+const routeKnowledge = {
+    overview: '这是一条北京中轴线一日路线：天安门广场 -> 故宫 -> 景山 -> 北海 -> 什刹海 -> 南锣鼓巷。上午看城市地标和宫城，下午加入园林与湖岸，晚上到胡同街区收尾。',
+    route: '推荐顺序是从南向北走，上午看天安门和故宫，中午到景山看全景，下午北海和什刹海放松，晚上南锣鼓巷收尾。全程约 8.6 km，适合步行加短途骑行。',
+    budget: '预算可以按三档展示：省钱版约 80-120 元，标准版约 180-260 元，含故宫门票、北海门票、简餐和小吃；舒适版可加入打车和正餐，约 350 元以上。',
+    ticket: '门票重点：故宫需提前预约，旺季约 60 元、淡季约 40 元；景山约 2 元；北海约 10 元；天安门、什刹海、南锣鼓巷街区免费。',
+    opening: '故宫通常 08:30 开放，周一闭馆；景山和北海开放时间更长，但会随季节调整，出发前建议再确认预约页面和景区公告。',
+    food: '美食推荐可以放在三段：前门早餐、什刹海晚餐、南锣鼓巷小吃和伴手礼。中午不建议在故宫里安排太久用餐，把时间留给主线参观更舒服。',
+    restroom: '卫生间提示：故宫午门/御花园附近、景山门区、北海南北门、什刹海银锭桥、南锣鼓巷游客服务点附近都可以提前标注。',
+    photo: '拍照点建议：天安门中轴线、故宫太和殿、景山万春亭俯瞰故宫、北海白塔、什刹海银锭桥、南锣鼓巷胡同门脸。',
+    transport: '交通策略：前半段以步行为主，北海到什刹海可步行或骑行，体力不足时可以从北海北门打车到南锣鼓巷。'
+};
+
+let tripState = {
+    stops: [],
+    startTime: null,
+    currentIndex: 0,
+    timer: null
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     checkUserLogin();
     loadTripData();
+    bindChatInput();
 });
 
-// 加载行程数据
 function loadTripData() {
-    const tripJson = localStorage.getItem('travel_current_trip');
-    
-    if (!tripJson) {
-        showEmptyState();
-        return;
-    }
-    
+    const saved = localStorage.getItem('travel_current_trip');
+    const normalized = saved ? normalizeSavedTrip(saved) : null;
+
+    tripState.stops = normalized?.stops?.length ? normalized.stops : demoTrip.stops;
+    tripState.startTime = new Date(normalized?.startTime || demoTrip.startTime);
+    tripState.currentIndex = normalized?.currentIndex || 0;
+
+    renderTrip();
+    startTripTimer();
+    sendSystemIntro();
+}
+
+function normalizeSavedTrip(saved) {
     try {
-        const tripData = JSON.parse(tripJson);
-        tripState.itinerary = tripData.itinerary;
-        tripState.attractions = tripData.attractions;
-        tripState.params = tripData.params;
-        tripState.startTime = new Date(tripData.startTime);
-        tripState.currentAttractionIndex = tripData.currentAttractionIndex || 0;
-        
-        // 初始化页面
-        initializeTrip();
-        
+        const parsed = JSON.parse(saved);
+        const attractions = parsed.attractions || [];
+        return {
+            startTime: parsed.startTime,
+            currentIndex: parsed.currentAttractionIndex || 0,
+            stops: attractions.map((item, index) => ({
+                id: item.id || index + 1,
+                time: ['09:00', '10:30', '13:30', '15:00', '17:00', '19:00'][index] || '全天',
+                name: item.name || `景点 ${index + 1}`,
+                duration: `${item.recommended_duration || 90} 分钟`,
+                note: item.description || '根据您的偏好加入路线，可继续补充门票、开放时间和附近推荐。',
+                eta: index === 0 ? '准备出发' : '约 15 分钟',
+                distance: index === 0 ? '--' : `${(0.8 + index * 0.4).toFixed(1)} km`,
+                ticket: item.price === 0 ? '免费' : `约 ${item.price || 50} 元`,
+                openTime: item.open_time || '09:00-18:00',
+                photo: '可结合景点特色生成拍照点',
+                food: '附近可安排简餐、咖啡或特色小吃',
+                restroom: '景区入口和游客服务点附近通常更容易找到卫生间',
+                imageUrl: item.image_url || 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Forbidden_city_06.jpg/960px-Forbidden_city_06.jpg',
+                lat: 39.905 + index * 0.006,
+                lng: 116.391 + index * 0.003
+            }))
+        };
     } catch (error) {
         console.error('加载行程数据失败:', error);
-        showEmptyState();
+        return null;
     }
 }
 
-// 初始化行程
-function initializeTrip() {
-    // 启动计时器
-    startTripTimer();
-
-    // 加载天气信息（模拟）
-    loadWeather();
-
-    // 渲染当前景点
+function renderTrip() {
+    renderWeather();
+    renderMap();
     renderCurrentAttraction();
-
-    // 渲染今日行程
-    renderTodayTimeline();
-
-    // 更新进度
+    renderTimeline();
+    updateNavigation();
     updateProgress();
-
-    // 设置导航信息
-    updateNavigation();
-
-    // 发送欢迎消息
-    setTimeout(() => {
-        sendSystemMessage(`欢迎开始您的旅程！第一个景点是「${getCurrentAttraction()?.name}」，准备好了吗？`);
-    }, 1000);
 }
 
-// 启动行程计时器
-function startTripTimer() {
-    updateTripTimer();
-    tripState.timerInterval = setInterval(updateTripTimer, 1000);
+function renderWeather() {
+    setText('weather-temp', '26°C');
 }
 
-// 更新行程计时器
-function updateTripTimer() {
-    const now = new Date();
-    const elapsed = now - tripState.startTime;
-    
-    const hours = Math.floor(elapsed / (1000 * 60 * 60));
-    const minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
-    
-    const timerEl = document.getElementById('trip-timer');
-    if (timerEl) {
-        timerEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    }
-}
-
-// 加载天气信息（模拟）
-function loadWeather() {
-    const weatherWidget = document.getElementById('weather-widget');
-    if (!weatherWidget) return;
-    
-    // 模拟天气数据
-    const weathers = [
-        { icon: '☀️', temp: '28°C', desc: '晴天' },
-        { icon: '⛅', temp: '25°C', desc: '多云' },
-        { icon: '🌤️', temp: '26°C', desc: '晴间多云' }
-    ];
-    
-    const weather = weathers[Math.floor(Math.random() * weathers.length)];
-    weatherWidget.innerHTML = `
-        <span class="weather-icon">${weather.icon}</span>
-        <span class="weather-temp">${weather.temp}</span>
-        <span class="weather-desc">${weather.desc}</span>
-    `;
-}
-
-// 获取当前景点
-function getCurrentAttraction() {
-    return tripState.attractions[tripState.currentAttractionIndex];
-}
-
-// 渲染当前景点
-function renderCurrentAttraction() {
-    const attraction = getCurrentAttraction();
-    if (!attraction) {
-        showNoMoreAttractions();
-        return;
-    }
-    
-    document.getElementById('current-image').src = attraction.image_url || `https://picsum.photos/400/200?random=${attraction.id}`;
-    document.getElementById('current-name').textContent = attraction.name;
-    document.getElementById('current-desc').textContent = attraction.description || '暂无描述';
-    document.getElementById('current-duration').textContent = `${attraction.recommended_duration || 120}分钟`;
-    document.getElementById('current-price').textContent = attraction.price === 0 ? '免费' : `¥${attraction.price}`;
-    document.getElementById('current-rating').textContent = `${attraction.rating || 4.0}分`;
-    document.getElementById('current-number').textContent = tripState.currentAttractionIndex + 1;
-    
-    updateAttractionStatus(tripState.attractionStatus);
-}
-
-// 更新景点状态
-function updateAttractionStatus(status) {
-    tripState.attractionStatus = status;
-    
-    const statusBadge = document.getElementById('attraction-status');
-    const btnArrived = document.getElementById('btn-arrived');
-    const btnStart = document.getElementById('btn-start');
-    const btnFinish = document.getElementById('btn-finish');
-    const btnNext = document.getElementById('btn-next');
-    const visitTimer = document.getElementById('visit-timer');
-    
-    // 隐藏所有按钮
-    btnArrived.style.display = 'none';
-    btnStart.style.display = 'none';
-    btnFinish.style.display = 'none';
-    btnNext.style.display = 'none';
-    visitTimer.style.display = 'none';
-    
-    switch (status) {
-        case 'pending':
-            statusBadge.textContent = '未开始';
-            statusBadge.className = 'status-badge';
-            btnArrived.style.display = 'flex';
-            break;
-        case 'arrived':
-            statusBadge.textContent = '已到达';
-            statusBadge.className = 'status-badge arrived';
-            btnStart.style.display = 'flex';
-            break;
-        case 'visiting':
-            statusBadge.textContent = '游览中';
-            statusBadge.className = 'status-badge visiting';
-            btnFinish.style.display = 'flex';
-            visitTimer.style.display = 'block';
-            startVisitTimer();
-            break;
-        case 'completed':
-            statusBadge.textContent = '已完成';
-            statusBadge.className = 'status-badge completed';
-            if (tripState.currentAttractionIndex < tripState.attractions.length - 1) {
-                btnNext.style.display = 'flex';
-            } else {
-                showTripCompleted();
-            }
-            break;
-    }
-}
-
-// 标记已到达
-function markArrived() {
-    updateAttractionStatus('arrived');
-    updateNavigation();
-    
-    const attraction = getCurrentAttraction();
-    sendSystemMessage(`您已到达「${attraction.name}」，准备好开始游览了吗？`);
-    
-    // 更新时间轴状态
-    updateTimelineItemStatus(tripState.currentAttractionIndex, 'current');
-}
-
-// 开始游览
-function startVisiting() {
-    tripState.visitStartTime = new Date();
-    updateAttractionStatus('visiting');
-    
-    const attraction = getCurrentAttraction();
-    sendSystemMessage(`开始游览「${attraction.name}」，建议游玩时间 ${attraction.recommended_duration || 120} 分钟。祝您玩得开心！`);
-    
-    // 检查是否接近闭园时间
-    checkClosingTime(attraction);
-}
-
-// 启动游览计时器
-function startVisitTimer() {
-    if (tripState.visitTimerInterval) {
-        clearInterval(tripState.visitTimerInterval);
-    }
-    
-    tripState.visitTimerInterval = setInterval(() => {
-        const now = new Date();
-        const elapsed = now - tripState.visitStartTime;
-        
-        const minutes = Math.floor(elapsed / (1000 * 60));
-        const seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
-        
-        const timerDisplay = document.getElementById('visit-timer-display');
-        if (timerDisplay) {
-            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        }
-    }, 1000);
-}
-
-// 结束游览
-function finishVisiting() {
-    if (tripState.visitTimerInterval) {
-        clearInterval(tripState.visitTimerInterval);
-    }
-    
-    updateAttractionStatus('completed');
-    
-    const attraction = getCurrentAttraction();
-    const visitDuration = Math.floor((new Date() - tripState.visitStartTime) / (1000 * 60));
-    
-    sendSystemMessage(`您已完成「${attraction.name}」的游览，共游览 ${visitDuration} 分钟。`);
-    
-    // 更新时间轴状态
-    updateTimelineItemStatus(tripState.currentAttractionIndex, 'done');
-    
-    // 更新进度
-    updateProgress();
-    
-    // 保存状态
-    saveTripState();
-}
-
-// 前往下一景点
-function goToNext() {
-    tripState.currentAttractionIndex++;
-    tripState.attractionStatus = 'pending';
-    
-    renderCurrentAttraction();
-    renderTodayTimeline();
-    updateNavigation();
-    saveTripState();
-    
-    const nextAttraction = getCurrentAttraction();
-    if (nextAttraction) {
-        sendSystemMessage(`下一站：「${nextAttraction.name}」，请根据导航前往。`);
-    }
-}
-
-// 更新导航信息
-function updateNavigation() {
-    const attraction = getCurrentAttraction();
-    if (!attraction) return;
-    
-    document.getElementById('nav-destination').textContent = attraction.name;
-    
-    // 模拟距离和时间
-    const distance = (Math.random() * 5 + 0.5).toFixed(1);
-    const duration = Math.floor(Math.random() * 20 + 5);
-    
-    document.getElementById('nav-distance').textContent = `${distance} 公里`;
-    document.getElementById('nav-duration').textContent = `${duration} 分钟`;
-}
-
-// 更新进度
-function updateProgress() {
-    const completed = tripState.attractionStatus === 'completed' ? tripState.currentAttractionIndex + 1 : tripState.currentAttractionIndex;
-    const total = tripState.attractions.length;
-    const percentage = (completed / total) * 100;
-    
-    document.getElementById('progress-text').textContent = `${completed}/${total}`;
-    document.getElementById('progress-fill').style.width = `${percentage}%`;
-}
-
-// 渲染今日行程时间轴
-function renderTodayTimeline() {
-    const container = document.getElementById('today-timeline');
-    if (!container || !tripState.itinerary) return;
-    
-    const day = tripState.itinerary.days[tripState.currentDay - 1];
-    if (!day) return;
-    
-    document.getElementById('current-day-label').textContent = `第 ${day.day} 天`;
-    
+function renderTileLayer(center, width, height) {
+    const tileSize = mapConfig.tileSize;
+    const centerTileX = Math.floor(center.x / tileSize);
+    const centerTileY = Math.floor(center.y / tileSize);
+    const radiusX = Math.ceil(width / tileSize / 2) + 1;
+    const radiusY = Math.ceil(height / tileSize / 2) + 1;
     let html = '';
-    let attractionIndex = 0;
-    
-    day.attractions.forEach((item, idx) => {
-        if (item.type === 'attraction') {
-            const globalIndex = tripState.attractions.findIndex(a => a.id === item.data.id);
-            const status = globalIndex < tripState.currentAttractionIndex ? 'done' :
-                          globalIndex === tripState.currentAttractionIndex ? 'current' : 'pending';
-            
-            html += `
-                <div class="timeline-item-h ${status === 'current' ? 'active' : ''} ${status === 'done' ? 'completed' : ''}"
-                     onclick="jumpToAttraction(${globalIndex})">
-                    <div class="item-time">${item.time}</div>
-                    <div class="item-name">${item.data.name}</div>
-                    <span class="item-status ${status}">${getStatusText(status)}</span>
-                </div>
-            `;
-            attractionIndex++;
+
+    for (let x = centerTileX - radiusX; x <= centerTileX + radiusX; x++) {
+        for (let y = centerTileY - radiusY; y <= centerTileY + radiusY; y++) {
+            const left = Math.round(width / 2 + x * tileSize - center.x);
+            const top = Math.round(height / 2 + y * tileSize - center.y);
+            html += `<img class="map-tile" src="https://tile.openstreetmap.org/${mapConfig.zoom}/${x}/${y}.png" alt=""
+                style="position:absolute;left:${left}px;top:${top}px;width:${tileSize}px;height:${tileSize}px" />`;
         }
-    });
-    
-    container.innerHTML = html;
+    }
+
+    return html;
 }
 
-// 获取状态文本
-function getStatusText(status) {
-    const map = {
-        'pending': '待游览',
-        'current': '进行中',
-        'done': '已完成'
+function lngLatToScreen(lng, lat, center, width, height) {
+    const point = lngLatToWorld(lng, lat, mapConfig.zoom);
+    return {
+        x: Math.round(width / 2 + point.x - center.x),
+        y: Math.round(height / 2 + point.y - center.y)
     };
-    return map[status] || status;
 }
 
-// 更新时间轴项目状态
-function updateTimelineItemStatus(index, status) {
-    const items = document.querySelectorAll('.timeline-item-h');
-    items.forEach((item, idx) => {
-        item.classList.remove('active', 'completed');
-        if (idx === index) {
-            item.classList.add('active');
-            const statusEl = item.querySelector('.item-status');
-            if (statusEl) statusEl.className = `item-status ${status}`;
-        } else if (idx < index) {
-            item.classList.add('completed');
-            const statusEl = item.querySelector('.item-status');
-            if (statusEl) statusEl.className = 'item-status done';
-        }
-    });
+function lngLatToWorld(lng, lat, zoom) {
+    const sinLat = Math.sin((lat * Math.PI) / 180);
+    const scale = mapConfig.tileSize * Math.pow(2, zoom);
+    return {
+        x: ((lng + 180) / 360) * scale,
+        y: (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI)) * scale
+    };
 }
 
-// 跳转到指定景点
-function jumpToAttraction(index) {
-    if (index < tripState.currentAttractionIndex) {
-        sendSystemMessage('无法返回已完成的景点。');
-        return;
-    }
-    
-    if (index > tripState.currentAttractionIndex) {
-        sendSystemMessage('请按顺序游览景点，或使用"调整行程"功能重新规划。');
-        return;
-    }
-}
+function renderMap() {
+    const mapView = document.getElementById('map-view');
+    if (!mapView) return;
 
-// 切换日期
-function changeDay(delta) {
-    const newDay = tripState.currentDay + delta;
-    if (newDay < 1 || newDay > tripState.itinerary.days.length) return;
-    
-    tripState.currentDay = newDay;
-    renderTodayTimeline();
-}
+    mapView.style.display = 'block';
+    const width = mapView.clientWidth || 520;
+    const height = mapView.clientHeight || 420;
+    const center = lngLatToWorld(mapConfig.centerLng, mapConfig.centerLat, mapConfig.zoom);
+    const stopPoints = tripState.stops.map((stop) => lngLatToScreen(stop.lng, stop.lat, center, width, height));
+    const landmarkPoints = mapLandmarks.map((landmark) => ({
+        ...landmark,
+        ...lngLatToScreen(landmark.lng, landmark.lat, center, width, height)
+    }));
+    const tileLayer = renderTileLayer(center, width, height);
 
-// 发送消息
-function sendMessage() {
-    const input = document.getElementById('chat-input');
-    const message = input.value.trim();
-    
-    if (!message) return;
-    
-    addMessage(message, 'user');
-    input.value = '';
-    
-    // 模拟 AI 回复
-    setTimeout(() => {
-        processUserMessage(message);
-    }, 500);
-}
-
-// 发送快捷消息
-function sendQuickMessage(message) {
-    addMessage(message, 'user');
-    setTimeout(() => {
-        processUserMessage(message);
-    }, 500);
-}
-
-// 处理用户消息
-function processUserMessage(message) {
-    const attraction = getCurrentAttraction();
-    
-    // 简单的关键词匹配
-    if (message.includes('美食') || message.includes('吃')) {
-        sendSystemMessage(`在「${attraction?.name || '当前位置'}」附近，我推荐以下美食：
-        
-🍜 老街小吃 - 距离约 500 米，当地特色小吃
-🍲 特色餐厅 - 距离约 800 米，人均消费约 60 元
-☕ 咖啡馆 - 距离约 300 米，适合休息
-
-需要导航到其中某一家吗？`);
-    } else if (message.includes('注意') || message.includes('事项')) {
-        sendSystemMessage(`游览「${attraction?.name || '当前景点'}」的注意事项：
-
-⚠️ 开放时间：${attraction?.open_time || '09:00-18:00'}
-🎫 门票价格：${attraction?.price === 0 ? '免费' : '¥' + attraction?.price}
-⏱️ 建议游玩时间：${attraction?.recommended_duration || 120} 分钟
-
-💡 温馨提示：
-- 请注意保管个人财物
-- 遵守景区规定，文明游览
-- 建议提前了解景点历史文化`);
-    } else if (message.includes('调整') || message.includes('行程')) {
-        openAdjustModal();
-    } else {
-        sendSystemMessage(`我理解您的问题。作为您的旅行助手，我可以：
-
-1. 🍜 推荐附近美食
-2. ⚠️ 提供景点注意事项
-3. 🔄 协助调整行程
-4. ❓ 回答旅行相关问题
-
-请告诉我您需要什么帮助？`);
-    }
-}
-
-// 添加消息
-function addMessage(content, type) {
-    const container = document.getElementById('chat-messages');
-    
-    const messageEl = document.createElement('div');
-    messageEl.className = `message ${type}`;
-    messageEl.innerHTML = `
-        <div class="message-avatar">${type === 'user' ? '👤' : '🤖'}</div>
-        <div class="message-content"><p>${content.replace(/\n/g, '</p><p>')}</p></div>
-    `;
-    
-    container.appendChild(messageEl);
-    container.scrollTop = container.scrollHeight;
-}
-
-// 发送系统消息
-function sendSystemMessage(content) {
-    addMessage(content, 'system');
-}
-
-// 清空聊天
-function clearChat() {
-    const container = document.getElementById('chat-messages');
-    container.innerHTML = `
-        <div class="message system">
-            <div class="message-avatar">🤖</div>
-            <div class="message-content">
-                <p>聊天记录已清空。有什么我可以帮您的吗？</p>
+    mapView.innerHTML = `
+        <div class="map-tile-layer" style="position:absolute;inset:0;border-radius:8px;overflow:hidden;background:#e8eef2">${tileLayer}</div>
+        <div style="position:absolute;inset:0;border-radius:8px;background:rgba(255,255,255,.18);pointer-events:none"></div>
+        ${landmarkPoints.map((landmark) => `
+            <div class="map-landmark" title="${landmark.name}" style="position:absolute;left:${landmark.x}px;top:${landmark.y}px;
+                transform:translate(-50%,-50%);z-index:1;text-align:center">
+                <div style="width:28px;height:28px;border-radius:8px;background:#fff;border:1px solid #e2e8f0;
+                    display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px rgba(15,23,42,.12)">${landmark.icon}</div>
+                <div style="margin-top:2px;background:rgba(255,255,255,.88);border-radius:6px;padding:2px 5px;font-size:10px;font-weight:700;white-space:nowrap">${landmark.name}</div>
             </div>
+        `).join('')}
+        <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none">
+            <polyline points="${stopPoints.map((point) => `${point.x},${point.y}`).join(' ')}"
+                fill="none" stroke="rgba(255,255,255,.9)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+            <polyline points="${stopPoints.map((point) => `${point.x},${point.y}`).join(' ')}"
+                fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        ${tripState.stops.map((stop, index) => {
+            const point = stopPoints[index];
+            return `
+            <button type="button" onclick="selectStop(${index})"
+                style="position:absolute;left:${point.x}px;top:${point.y}px;transform:translate(-50%,-50%);
+                width:34px;height:34px;border-radius:50%;border:3px solid #fff;background:${index === tripState.currentIndex ? '#ffc800' : '#2563eb'};
+                color:${index === tripState.currentIndex ? '#212529' : '#fff'};font-weight:800;box-shadow:0 10px 24px rgba(15,23,42,.22);z-index:3">
+                ${index + 1}
+            </button>
+            <div style="position:absolute;left:${point.x + 18}px;top:${point.y - 28}px;background:#fff;border:1px solid #e5e7eb;
+                border-radius:8px;padding:6px 9px;font-size:12px;font-weight:700;box-shadow:0 8px 20px rgba(15,23,42,.14);white-space:nowrap;z-index:3">
+                ${stop.name}
+            </div>
+        `;
+        }).join('')}
+        <div style="position:absolute;right:8px;bottom:6px;z-index:4;background:rgba(255,255,255,.86);font-size:10px;color:#64748b;padding:2px 6px;border-radius:6px">
+            地图 © OpenStreetMap
         </div>
     `;
 }
 
-// 处理回车键
-function handleKeyPress(event) {
-    if (event.key === 'Enter') {
-        sendMessage();
-    }
-}
+function renderCurrentAttraction() {
+    const container = document.getElementById('current-attraction');
+    const stop = getCurrentStop();
+    if (!container || !stop) return;
 
-// 打开调整行程模态框
-function openAdjustModal() {
-    document.getElementById('adjust-modal').style.display = 'flex';
-}
-
-// 关闭调整行程模态框
-function closeAdjustModal() {
-    document.getElementById('adjust-modal').style.display = 'none';
-}
-
-// 跳过当前景点
-function skipCurrentAttraction() {
-    const attraction = getCurrentAttraction();
-    sendSystemMessage(`已跳过「${attraction.name}」。正在为您规划前往下一个景点的路线...`);
-    closeAdjustModal();
-    
-    tripState.currentAttractionIndex++;
-    tripState.attractionStatus = 'pending';
-    
-    renderCurrentAttraction();
-    renderTodayTimeline();
-    updateNavigation();
-    saveTripState();
-}
-
-// 延长游览时间
-function extendTime(minutes) {
-    const attraction = getCurrentAttraction();
-    sendSystemMessage(`已为「${attraction.name}」延长 ${minutes} 分钟游览时间。后续行程将相应调整。`);
-    closeAdjustModal();
-}
-
-// 重新规划路线
-function replanRoute() {
-    sendSystemMessage('正在根据您的当前位置重新规划剩余行程路线，请稍候...');
-    closeAdjustModal();
-    
-    setTimeout(() => {
-        sendSystemMessage('路线已重新规划完成！后续景点顺序已优化，请按新路线继续游览。');
-    }, 2000);
-}
-
-// 检查闭园时间
-function checkClosingTime(attraction) {
-    const now = new Date();
-    const currentHour = now.getHours();
-    
-    // 假设大部分景点 18:00 关闭
-    if (currentHour >= 16) {
-        sendSystemMessage(`⚠️ 提醒：当前时间较晚，请注意「${attraction.name}」的开放时间（${attraction.open_time || '09:00-18:00'}），合理安排游览时间。`);
-    }
-}
-
-// 定位当前位置
-function locateCurrentPosition() {
-    sendSystemMessage('正在获取您的当前位置...');
-    
-    setTimeout(() => {
-        sendSystemMessage('已获取您的位置。您当前位于景区内，距离下一个景点约 500 米。');
-    }, 1000);
-}
-
-// 切换地图图层
-function toggleMapLayer() {
-    showNotification('已切换地图显示模式', 'info');
-}
-
-// 显示行程完成
-function showTripCompleted() {
-    sendSystemMessage(`🎉 恭喜！您已完成本次行程的所有景点！
-
-📊 行程总结：
-- 总景点数：${tripState.attractions.length} 个
-- 总游玩时长：约 ${Math.floor((new Date() - tripState.startTime) / (1000 * 60 * 60))} 小时
-
-感谢使用旅游路线助手，期待下次与您同行！`);
-    
-    document.querySelector('.action-area').innerHTML = `
-        <button class="action-btn btn-start" onclick="endTrip()" style="display: flex;">
-            <span class="btn-icon">🏁</span>
-            <span class="btn-text">结束行程</span>
+    container.innerHTML = `
+        <div style="height:180px;border-radius:8px;position:relative;overflow:hidden;margin-bottom:18px;background:#e2e8f0">
+            <img class="attraction-card-image" src="${stop.imageUrl}" alt="${stop.name}" loading="lazy"
+                style="width:100%;height:100%;object-fit:cover;display:block" />
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 14px;background:linear-gradient(180deg,transparent,rgba(15,23,42,.72));color:#fff;font-weight:700">
+                ${stop.time} · ${stop.duration}
+            </div>
+        </div>
+        <h3 style="font-size:22px;font-weight:800;margin-bottom:8px">${stop.name}</h3>
+        <p style="color:#64748b;line-height:1.7;margin-bottom:16px">${stop.note}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div style="background:#f8fafc;border-radius:8px;padding:12px"><small class="text-muted">建议停留</small><br><b>${stop.duration}</b></div>
+            <div style="background:#f8fafc;border-radius:8px;padding:12px"><small class="text-muted">下一段</small><br><b>${stop.eta}</b></div>
+            <div style="background:#f8fafc;border-radius:8px;padding:12px"><small class="text-muted">门票</small><br><b>${stop.ticket}</b></div>
+            <div style="background:#f8fafc;border-radius:8px;padding:12px"><small class="text-muted">开放</small><br><b>${stop.openTime}</b></div>
+        </div>
+        <button class="btn btn-warning btn-sm text-uppercase" onclick="goToNextStop()" style="background:#ffc800;border-color:#ffc800;color:#212529">
+            ${tripState.currentIndex >= tripState.stops.length - 1 ? '完成行程' : '到下一站'}
         </button>
     `;
 }
 
-// 显示没有更多景点
-function showNoMoreAttractions() {
-    document.getElementById('current-content').innerHTML = `
-        <div class="empty-trip">
-            <div class="empty-icon">🎉</div>
-            <h3 class="empty-title">行程已结束</h3>
-            <p class="empty-desc">您已完成所有景点的游览！</p>
-        </div>
-    `;
-}
+function renderTimeline() {
+    const container = document.getElementById('timeline-horizontal');
+    if (!container) return;
 
-// 显示空状态
-function showEmptyState() {
-    document.querySelector('.trip-page').innerHTML = `
-        <div class="container">
-            <div class="empty-state">
-                <div class="empty-icon">🗺️</div>
-                <h2 class="empty-title">暂无进行中的行程</h2>
-                <p class="empty-desc">请先生成行程并点击"开始行程"进入行中模式</p>
-                <button class="empty-btn" onclick="goToItinerary()">查看我的行程</button>
+    container.innerHTML = tripState.stops.map((stop, index) => {
+        const status = index < tripState.currentIndex ? 'done' : index === tripState.currentIndex ? 'current' : 'pending';
+        return `
+            <div class="timeline-item-h ${status === 'current' ? 'active' : ''} ${status === 'done' ? 'completed' : ''}" onclick="selectStop(${index})">
+                <div class="item-time">${stop.time}</div>
+                <div class="item-name">${stop.name}</div>
+                <span class="item-status ${status}">${getStatusText(status)}</span>
             </div>
-        </div>
-    `;
+        `;
+    }).join('');
 }
 
-// 跳转到行程详情页
-function goToItinerary() {
-    window.location.href = './itinerary.html';
+function updateNavigation() {
+    const stop = getCurrentStop();
+    if (!stop) return;
+
+    setText('next-stop', stop.name);
+    setText('eta', stop.eta);
+    setText('distance', stop.distance);
+    setText('attraction-status', tripState.currentIndex === 0 ? '准备出发' : '行程中');
 }
 
-// 结束行程
-function endTrip() {
-    if (confirm('确定要结束本次行程吗？')) {
-        // 清除计时器
-        if (tripState.timerInterval) clearInterval(tripState.timerInterval);
-        if (tripState.visitTimerInterval) clearInterval(tripState.visitTimerInterval);
-        
-        // 清除存储
-        localStorage.removeItem('travel_current_trip');
-        
-        showNotification('行程已结束，感谢使用！', 'success');
-        
-        setTimeout(() => {
-            window.location.href = './itinerary.html';
-        }, 1500);
+function updateProgress() {
+    const total = tripState.stops.length || 1;
+    const percent = Math.round(((tripState.currentIndex + 1) / total) * 100);
+    setText('progress-percent', `${percent}%`);
+    const fill = document.getElementById('progress-fill');
+    if (fill) fill.style.width = `${percent}%`;
+}
+
+function startTripTimer() {
+    updateTripTimer();
+    if (tripState.timer) clearInterval(tripState.timer);
+    tripState.timer = setInterval(updateTripTimer, 1000);
+}
+
+function updateTripTimer() {
+    const elapsed = Date.now() - tripState.startTime.getTime();
+    const hours = Math.max(0, Math.floor(elapsed / 3600000));
+    const minutes = Math.max(0, Math.floor((elapsed % 3600000) / 60000));
+    const seconds = Math.max(0, Math.floor((elapsed % 60000) / 1000));
+    setText('trip-timer', `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
+}
+
+function selectStop(index) {
+    tripState.currentIndex = index;
+    renderTrip();
+    addMessage(`已切换到第 ${index + 1} 站：${getCurrentStop().name}。你可以问我“这里门票多少”“附近吃什么”“拍照点在哪”。`, 'assistant');
+}
+
+function goToNextStop() {
+    if (tripState.currentIndex < tripState.stops.length - 1) {
+        tripState.currentIndex += 1;
+        renderTrip();
+        addMessage(`下一站是 ${getCurrentStop().name}，预计 ${getCurrentStop().eta}。`, 'assistant');
+        return;
     }
+
+    addMessage('本次北京中轴线行程已完成。可以回看路线、整理照片，也可以收藏喜欢的景点下次再来。', 'assistant');
 }
 
-// 保存行程状态
-function saveTripState() {
-    const tripData = {
-        itinerary: tripState.itinerary,
-        attractions: tripState.attractions,
-        params: tripState.params,
-        startTime: tripState.startTime.toISOString(),
-        currentAttractionIndex: tripState.currentAttractionIndex
-    };
-    localStorage.setItem('travel_current_trip', JSON.stringify(tripData));
-}
+function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input?.value.trim();
+    if (!message) return;
 
-// 显示通知
-function showNotification(message, type = 'info') {
-    const oldNotification = document.querySelector('.notification-toast');
-    if (oldNotification) oldNotification.remove();
-    
-    const notification = document.createElement('div');
-    notification.className = `notification-toast notification-${type}`;
-    notification.textContent = message;
-    
-    document.body.appendChild(notification);
-    setTimeout(() => notification.classList.add('show'), 10);
+    addMessage(message, 'user');
+    input.value = '';
+
     setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+        addMessage(answerTripQuestion(message), 'assistant');
+    }, 250);
 }
 
-// 点击模态框外部关闭
-document.addEventListener('click', function(e) {
-    const modal = document.getElementById('adjust-modal');
-    if (e.target === modal) {
-        closeAdjustModal();
+function answerTripQuestion(rawMessage) {
+    const message = rawMessage.toLowerCase();
+    const stop = findMentionedStop(rawMessage) || getCurrentStop();
+    const replies = [];
+
+    if (message.includes('故宫几点') || message.includes('开放') || message.includes('闭馆') || message.includes('时间')) {
+        replies.push(`${stop.name} 开放时间：${stop.openTime}。故宫开放时间和闭馆安排以预约页面为准，出发前建议再确认一次。`);
     }
-});
+    if (message.includes('门票') || message.includes('多少钱') || message.includes('价格') || message.includes('费用')) {
+        replies.push(`${stop.name} 门票/费用：${stop.ticket}。整条路线预算建议：${routeKnowledge.budget}`);
+    }
+    if (message.includes('厕所') || message.includes('卫生间') || message.includes('洗手间')) {
+        replies.push(`${stop.name} 卫生间提示：${stop.restroom}。${routeKnowledge.restroom}`);
+    }
+    if (message.includes('拍照') || message.includes('打卡') || message.includes('机位')) {
+        replies.push(`${stop.name} 推荐拍照点：${stop.photo}。整条路线高光：${routeKnowledge.photo}`);
+    }
+    if (message.includes('吃') || message.includes('美食') || message.includes('餐厅') || message.includes('午饭') || message.includes('晚饭')) {
+        replies.push(`${stop.name} 附近建议：${stop.food}。${routeKnowledge.food}`);
+    }
+    if (message.includes('路线') || message.includes('顺序') || message.includes('怎么走') || message.includes('地图')) {
+        replies.push(routeKnowledge.route);
+    }
+    if (message.includes('预算')) {
+        replies.push(routeKnowledge.budget);
+    }
+    if (message.includes('交通') || message.includes('地铁') || message.includes('骑行') || message.includes('打车')) {
+        replies.push(routeKnowledge.transport);
+    }
+    if (message.includes('介绍') || message.includes('总结') || message.includes('这条')) {
+        replies.push(routeKnowledge.overview);
+    }
+
+    if (replies.length > 0) {
+        return replies.join('\n\n');
+    }
+
+    return `我现在可以回答这条北京中轴线行程里的问题，比如“故宫几点开门”“门票多少钱”“哪里拍照”“附近吃什么”“厕所在哪”“预算多少”“怎么走”。当前站是 ${stop.name}，你也可以直接问这个站。`;
+}
+
+function findMentionedStop(message) {
+    return tripState.stops.find((stop) => message.includes(stop.name.replace('博物院', '').replace('广场', '').replace('公园', '')) || message.includes(stop.name));
+}
+
+function sendSystemIntro() {
+    const messages = document.getElementById('chat-messages');
+    if (!messages || messages.dataset.demoReady === 'true') return;
+    messages.dataset.demoReady = 'true';
+    addMessage('我已加载北京中轴线行程信息。可以问：故宫几点开门、门票多少钱、哪里拍照、附近吃什么、厕所在哪、预算多少、怎么走。', 'assistant');
+}
+
+function bindChatInput() {
+    const input = document.getElementById('chat-input');
+    if (!input) return;
+    input.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') sendMessage();
+    });
+}
+
+function addMessage(content, type) {
+    const container = document.getElementById('chat-messages');
+    if (!container) return;
+
+    const message = document.createElement('div');
+    message.className = `chat-msg ${type === 'user' ? 'user' : 'assistant'}`;
+    message.textContent = content;
+    container.appendChild(message);
+    container.scrollTop = container.scrollHeight;
+}
+
+function endTrip() {
+    if (!confirm('确定要结束本次行程吗？')) return;
+    localStorage.removeItem('travel_current_trip');
+    tripState.currentIndex = 0;
+    tripState.startTime = new Date();
+    renderTrip();
+    addMessage('行程已重置为北京中轴线路线。', 'assistant');
+}
+
+function getCurrentStop() {
+    return tripState.stops[tripState.currentIndex];
+}
+
+function getStatusText(status) {
+    return {
+        pending: '待游览',
+        current: '当前站',
+        done: '已完成'
+    }[status] || status;
+}
+
+function setText(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+}
+
+function pad(number) {
+    return String(number).padStart(2, '0');
+}
